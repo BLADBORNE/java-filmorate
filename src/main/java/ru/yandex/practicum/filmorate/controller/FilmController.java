@@ -20,6 +20,13 @@ public class FilmController {
         return ++filmsId;
     }
 
+    private void checkTheFilmsBirthdayDate(LocalDate date) {
+        if (date.isBefore(LocalDate.of(1895, 12, 28))) {
+            log.error("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
+            throw new ValidationException("При создании фильма объект не прошел валидацию");
+        }
+    }
+
     @GetMapping
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
@@ -29,10 +36,7 @@ public class FilmController {
     public Film createNewFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос на создание нового фильма");
 
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
-            throw new ValidationException("При создании фильма объект не прошел валидацию");
-        }
+        checkTheFilmsBirthdayDate(film.getReleaseDate());
 
         film.setId(generateId());
         films.put(film.getId(), film);
@@ -45,10 +49,7 @@ public class FilmController {
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос на обновление нового фильма");
 
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
-            throw new ValidationException("При обновлении фильма объект не прошел валидацию");
-        }
+        checkTheFilmsBirthdayDate(film.getReleaseDate());
 
         if (!films.containsKey(film.getId())) {
             log.info("Не можем обновить фильм с id = {}, тк его нет в мапе", film.getId());

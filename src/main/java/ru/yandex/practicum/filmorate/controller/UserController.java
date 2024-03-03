@@ -20,6 +20,19 @@ public class UserController {
         return ++usersId;
     }
 
+    private void checkThatUserDateIsNotFromTheFeature(LocalDate date) {
+        if (date.isAfter(LocalDate.now())) {
+            log.error("При создании пользователя поле дня рождения не прошло валидацию");
+            throw new ValidationException("При создании пользователя объект не прошел валидацию");
+        }
+    }
+
+    private void setNicknameAsALoginIfANicknameIsEmpty(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
     @GetMapping
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
@@ -29,14 +42,9 @@ public class UserController {
     public User createNewUser(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание нового пользователя");
 
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("При создании пользователя поле дня рождения не прошло валидацию");
-            throw new ValidationException("При создании пользователя объект не прошел валидацию");
-        }
+        checkThatUserDateIsNotFromTheFeature(user.getBirthday());
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        setNicknameAsALoginIfANicknameIsEmpty(user);
 
         user.setId(generateUserId());
         users.put(user.getId(), user);
@@ -49,14 +57,9 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос на обновление нового пользователя");
 
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("При создании пользователя поле дня рождения не прошло валидацию");
-            throw new ValidationException("При обновлении пользователя объект не прошел валидацию");
-        }
+        checkThatUserDateIsNotFromTheFeature(user.getBirthday());
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        setNicknameAsALoginIfANicknameIsEmpty(user);
 
         if (!users.containsKey(user.getId())) {
             log.info("Не можем обновить пользователя с id = {}, тк его нет в мапе", user.getId());
