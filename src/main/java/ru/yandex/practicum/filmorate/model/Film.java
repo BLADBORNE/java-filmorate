@@ -8,6 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,4 +22,9 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private final int duration;
+    private Set<Integer> filmLikes;
+
+    public static int compareFilmsByLikes(Film o1, Film o2) {
+        return o2.getFilmLikes().size() - o1.getFilmLikes().size();
+    }
 }

@@ -7,6 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -28,7 +31,7 @@ public class FilmValidateTest {
 
     @BeforeEach
     public void createNewFilmController() {
-        filmController = new FilmController();
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
     }
 
     @Test
@@ -39,7 +42,8 @@ public class FilmValidateTest {
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .duration(200)
                 .build();
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.createNewFilm(film));
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                filmController.createNewFilm(film));
 
         assertEquals("При создании фильма объект не прошел валидацию", exception.getMessage());
     }
