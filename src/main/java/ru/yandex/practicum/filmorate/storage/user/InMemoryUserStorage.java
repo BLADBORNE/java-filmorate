@@ -64,6 +64,25 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
+    public User deleteUserById(int id) {
+        log.info(String.format("Получен запрос на удаление пользователя с id = %s", id));
+
+        if (!users.containsKey(id)) {
+            log.warn(String.format("Не можем удалаить пользователя с id = %s, тк его нет", id));
+
+            throw new NoSuchElementException(String.format("Не можем удалаить пользователя с id = %s, тк его нет", id));
+        }
+
+        User deletedUser = getUserById(id);
+
+        users.remove(id);
+
+        log.info(String.format("Пользователь %s был успешно удален", deletedUser.getName()));
+
+        return deletedUser;
+    }
+
     private int generateUserId() {
         return ++usersId;
     }

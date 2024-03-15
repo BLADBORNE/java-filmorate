@@ -70,6 +70,25 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public Film deleteFilmById(int id) {
+        log.info(String.format("Получен запрос на удаление фильма с id = %s", id));
+
+        if (!films.containsKey(id)) {
+            log.warn(String.format("Не можем удалаить фильм с id = %s, тк его нет", id));
+
+            throw new NoSuchElementException(String.format("Не можем удалаить фильм с id = %s, тк его нет", id));
+        }
+
+        Film deletedFilm = getFilmById(id);
+
+        films.remove(id);
+
+        log.info(String.format("Фильм %s был успешно удален", deletedFilm.getName()));
+
+        return deletedFilm;
+    }
+
     private int generateId() {
         return ++filmsId;
     }

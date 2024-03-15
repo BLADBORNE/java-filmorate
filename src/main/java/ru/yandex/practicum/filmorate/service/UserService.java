@@ -36,6 +36,10 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
+    public User deleteUserById(int id) {
+        return userStorage.deleteUserById(id);
+    }
+
     public void addFriend(int userId, int friendId) {
         log.info(String.format("Получен запрос на добавление в друзья. Пользователь с id = %s хочет добавить " +
                 "пользователя с id = %s", userId, friendId));

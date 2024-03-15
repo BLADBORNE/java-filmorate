@@ -12,4 +12,6 @@ public interface FilmStorage {
     Film createNewFilm(Film film);
 
     Film updateFilm(Film film);
+
+    Film deleteFilmById(int id);
 }

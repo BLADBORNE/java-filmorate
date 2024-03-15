@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -65,5 +66,16 @@ public class UserController {
             @PathVariable(value = "otherId") int otherId
     ) {
         return userService.getCommonFriends(userId, otherId);
+    }
+
+    @DeleteMapping(value = {"", "/{userId}"})
+    public User deleteUserById(
+            @PathVariable(value = "userId", required = false) Optional<Integer> userId
+    ) {
+        if (userId.isEmpty()) {
+            throw new IllegalArgumentException("При удалении пользователя не был передан id");
+        }
+
+        return userService.deleteUserById(userId.get());
     }
 }

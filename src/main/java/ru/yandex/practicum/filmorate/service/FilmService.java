@@ -43,6 +43,10 @@ public class FilmService {
         return filmStorage.updateFilm(film);
     }
 
+    public Film deleteFilmById(int id) {
+        return filmStorage.deleteFilmById(id);
+    }
+
     public List<Film> getTopFilmsByLikes(int count) {
         log.info(String.format("Получен запрос на получении топ %s лучших фильмов", count));
         log.info(String.format("Топ %s лучших фильмов отправлены клиенту", count));

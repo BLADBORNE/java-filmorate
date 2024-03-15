@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -57,5 +58,16 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         return service.updateFilm(film);
+    }
+
+    @DeleteMapping(value = {"", "/{filmId}"})
+    public Film deleteFilmById(
+            @PathVariable(value = "filmId", required = false) Optional<Integer> filmId
+    ) {
+        if (filmId.isEmpty()) {
+            throw new IllegalArgumentException("При удалении фильма не был передан id");
+        }
+
+        return service.deleteFilmById(filmId.get());
     }
 }
