@@ -23,8 +23,4 @@ public class Film {
     @Min(1)
     private final int duration;
     private Set<Integer> filmLikes;
-
-    public static int compareFilmsByLikes(Film o1, Film o2) {
-        return o2.getFilmLikes().size() - o1.getFilmLikes().size();
-    }
 }

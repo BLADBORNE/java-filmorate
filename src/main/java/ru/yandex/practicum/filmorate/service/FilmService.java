@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,8 +18,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FilmService {
-    private final InMemoryFilmStorage filmStorage;
-    private final InMemoryUserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
@@ -45,7 +48,7 @@ public class FilmService {
         log.info(String.format("Топ %s лучших фильмов отправлены клиенту", count));
 
         return filmStorage.getFilms().stream()
-                .sorted(Film::compareFilmsByLikes)
+                .sorted(Comparator.comparing(film -> film.getFilmLikes().size() * -1))
                 .limit(count)
                 .collect(Collectors.toList());
     }
