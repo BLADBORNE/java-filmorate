@@ -4,8 +4,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -13,7 +14,8 @@ import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserValidateTest {
     private UserController userController;
@@ -26,11 +28,11 @@ public class UserValidateTest {
 
     @BeforeEach
     public void createNewUserController() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
-    public void shouldThrownAnExceptionIfUserDateIsFromTheFeature() {
+    public void shouldCreateAUserWithADateFromTheFeature() {
         User user = User.builder()
                 .email("belyachok567811@gmail.com")
                 .login("Ilya")
@@ -38,8 +40,8 @@ public class UserValidateTest {
                 .birthday(LocalDate.of(2120, 3, 5))
                 .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.createNewUser(user));
-        assertEquals("При создании пользователя объект не прошел валидацию", exception.getMessage());
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
     }
 
     @Test
