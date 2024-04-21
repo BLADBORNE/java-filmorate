@@ -34,17 +34,14 @@ WHERE film_id IN (SELECT film_id
                   ORDER BY COUNT(user_id) DESC
                   LIMIT 10);
 ```
-Получение id и логинов друзей по id пользователя = 1:
+Получение друзей по id пользователя = 1:
 ```sql
-SELECT user_login,
-       user_id
-FROM USER
-WHERE user_id IN
-    (SELECT recipients_id
-     FROM user_friend
-     WHERE sender_id = 1)
-  OR user_id IN
-    (SELECT sender_id
-     FROM user_friend
-     WHERE recipients_id = 1);
+
+SELECT *
+FROM users AS u
+WHERE u.user_id IN
+    (SELECT uf.recipients_id
+     FROM user_friend AS uf
+     WHERE uf.sender_id = 1
+       AND uf.friendship_status = 'FRIENDS')
 ```
