@@ -1,26 +1,96 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.BeforeEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserServiceTest {
-    private UserService userService;
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+public class DbUserStorageTest {
+    private final UserService userService;
 
-    @BeforeEach
-    public void createUserService() {
-        userService = new UserService(new InMemoryUserStorage());
+    @Test
+    public void shouldCreateUserAndFindUserById() {
+        User newUser = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        userService.createNewUser(newUser);
+
+        User savedUser = userService.getUserById(1);
+
+        assertNotNull(savedUser);
+        assertEquals(1,userService.getUsers().size());
+        assertTrue(userService.getUsers().contains(savedUser));
     }
 
     @Test
-    public void shouldMakeUser1AndUser2Friends() {
+    public void shouldUpdateAndFindUserById() {
+        User newUser = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        userService.createNewUser(newUser);
+
+        User savedUser = userService.getUserById(1);
+
+        assertNotNull(savedUser);
+        assertEquals(1,userService.getUsers().size());
+        assertTrue(userService.getUsers().contains(savedUser));
+
+        newUser.setName("UpdateName");
+        newUser.setLogin("New");
+
+        userService.updateUser(newUser);
+
+        assertEquals(1,userService.getUsers().size());
+        assertTrue(userService.getUsers().contains(newUser));
+        assertFalse(userService.getUsers().contains(savedUser));
+    }
+
+    @Test
+    public void shouldDeleteFilmById() {
+        User newUser = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        userService.createNewUser(newUser);
+
+        User savedUser = userService.getUserById(1);
+
+        assertNotNull(savedUser);
+        assertEquals(1,userService.getUsers().size());
+        assertTrue(userService.getUsers().contains(savedUser));
+
+        userService.deleteUserById(savedUser.getId());
+
+        assertEquals(0,userService.getUsers().size());
+        assertFalse(userService.getUsers().contains(savedUser));
+    }
+
+    @Test
+    public void shouldAddUser2ToUsers1FriendsListAndUser2ShouldNotHasUser1InHisFriendsList() {
         User user1 = User.builder()
                 .email("belyachok567811@gmail.com")
                 .login("Ilya")
@@ -35,8 +105,8 @@ public class UserServiceTest {
                 .birthday(LocalDate.of(2012, 12, 1))
                 .build();
 
-        User u1 = userService.createNewUser(user1);
-        User u2 = userService.createNewUser(user2);
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
 
         assertEquals(2, userService.getUsers().size());
         assertTrue(userService.getUsers().contains(user1));
@@ -44,12 +114,12 @@ public class UserServiceTest {
 
         userService.addFriend(user1.getId(), user2.getId());
 
-        assertTrue(u1.getUserFriends().contains(u2.getId()));
-        assertTrue(u2.getUserFriends().contains(u1.getId()));
+        assertTrue(userService.getUsersFriends(user1.getId()).contains(user2));
+        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
     }
 
     @Test
-    public void shouldMakeUser1AndUser2Unfriends() {
+    public void shouldDeleteUser2FromUser1FriendsListAndUser2ShouldNotHasUser1InHisFriendsList() {
         User user1 = User.builder()
                 .email("belyachok567811@gmail.com")
                 .login("Ilya")
@@ -64,21 +134,22 @@ public class UserServiceTest {
                 .birthday(LocalDate.of(2012, 12, 1))
                 .build();
 
-        User u1 = userService.createNewUser(user1);
-        User u2 = userService.createNewUser(user2);
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
 
         userService.addFriend(user1.getId(), user2.getId());
 
-        assertTrue(u1.getUserFriends().contains(u2.getId()));
-        assertTrue(u2.getUserFriends().contains(u1.getId()));
+        assertTrue(userService.getUsersFriends(user1.getId()).contains(user2));
+        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
+        assertEquals(2, userService.getUsers().size());
 
         userService.deleteFriend(user1.getId(), user2.getId());
 
-        assertEquals(2, userService.getUsers().size());
         assertTrue(userService.getUsers().contains(user1));
         assertTrue(userService.getUsers().contains(user2));
-        assertFalse(u1.getUserFriends().contains(u2.getId()));
-        assertFalse(u2.getUserFriends().contains(u1.getId()));
+
+        assertFalse(userService.getUsersFriends(user1.getId()).contains(user2));
+        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
     }
 
     @Test
