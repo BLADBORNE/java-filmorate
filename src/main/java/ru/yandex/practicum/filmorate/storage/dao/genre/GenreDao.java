@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao.genre;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,9 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class GenreDao implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public GenreDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Genre getGenreById(int id) {
@@ -56,12 +52,11 @@ public class GenreDao implements GenreStorage {
     public List<Genre> getFilmsGenres(int id) {
         log.info("Получен запрос на отправку всех жанров фильму с id = {}", id);
 
-        String sql = "SELECT *\n" +
+        String sql = "\n" +
+                "SELECT *\n" +
                 "FROM genres AS g\n" +
-                "WHERE g.genre_id IN\n" +
-                "    (SELECT fg.genre_id\n" +
-                "     FROM film_genre AS fg\n" +
-                "     WHERE fg.film_id = ?)";
+                "JOIN film_genre AS fg ON g.genre_id = fg.genre_id\n" +
+                "WHERE fg.film_id = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), id).stream().sorted(Comparator
                 .comparing(Genre::getId)).collect(Collectors.toList());
@@ -96,7 +91,6 @@ public class GenreDao implements GenreStorage {
         }
 
         List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
-//        Set<Genre> uniqueUpdatedFilmGenres = new HashSet<>(film.getGenres());
         Set<Integer> uniqueUpdatedFilmGenres = film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmGenres = new ArrayList<>(currentFilmGenres);

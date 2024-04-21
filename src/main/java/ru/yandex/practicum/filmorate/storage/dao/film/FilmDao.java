@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -23,19 +23,12 @@ import java.util.NoSuchElementException;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class FilmDao implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final RatingStorage ratingStorage;
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
-
-    @Autowired
-    public FilmDao(JdbcTemplate jdbcTemplate, RatingStorage ratingStorage, UserStorage userStorage, GenreStorage genreStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.ratingStorage = ratingStorage;
-        this.userStorage = userStorage;
-        this.genreStorage = genreStorage;
-    }
 
     @Override
     public List<Film> getFilms() {

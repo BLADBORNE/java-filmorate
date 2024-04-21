@@ -160,11 +160,10 @@ public class UserDao implements UserStorage {
         log.info(String.format("Пользователю %s успешно отправлены его друзья", user.getName()));
 
         String sql = "SELECT *\n" +
-                "FROM users\n" +
-                "WHERE user_id IN\n" +
-                "    (SELECT recipients_id\n" +
-                "     FROM user_friend\n" +
-                "     WHERE sender_id = ? AND friendship_status = 'FRIENDS')\n";
+                "FROM users AS u\n" +
+                "JOIN user_friend AS uf ON u.user_id = uf.recipients_id\n" +
+                "WHERE sender_id = ?\n" +
+                "  AND friendship_status = 'FRIENDS'";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId);
     }

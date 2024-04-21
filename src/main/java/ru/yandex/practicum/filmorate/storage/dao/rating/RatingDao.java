@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao.rating;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -16,13 +16,9 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class RatingDao implements RatingStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public RatingDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Rating getRatingById(int id) {
