@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.dao.film;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface FilmStorage {
@@ -23,4 +24,6 @@ public interface FilmStorage {
     void addLikeToFilm(int filmId, int userId);
 
     void deleteLikeFromFilm(int filmId, int userId);
+
+    Collection<Film> searchFilms(String query, String by);
 }

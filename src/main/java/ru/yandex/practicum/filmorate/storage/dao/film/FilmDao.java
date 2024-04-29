@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,6 +194,34 @@ public class FilmDao implements FilmStorage {
         log.info("Фильму с id = {} успешно отправлен всех лайков от людей", id);
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+        log.info("Получен запрос = {} на поиск с фильтром по = {}", query, by);
+        String dbQuery = "%" + query + "%";
+
+        switch (by) {
+            case "title":
+                String sql =
+                        "SELECT f.* " +
+                                "FROM films AS f " +
+                                "JOIN film_like AS l ON f.film_id = l.film_id" +
+                                "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                                "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), dbQuery);
+            case "director":
+                return null; // метод из задания "Добавление режиссёров в фильм"
+
+            case "director,title":
+            case "title,director":
+                return null; // метод из задания "Добавление режиссёров в фильм"
+
+            default:
+                NoSuchElementException e = new NoSuchElementException("Параметр запроса не найден");
+                log.error(by, e);
+                throw e;
+        }
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
