@@ -41,7 +41,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
-        return new ErrorResponse("Дата фильма должна быть не менше 1895-12-28");
+        return new ErrorResponse("Дата фильма должна быть не меньше 1895-12-28");
     }
 
     @ExceptionHandler

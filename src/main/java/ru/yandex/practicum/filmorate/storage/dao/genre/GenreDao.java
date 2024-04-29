@@ -84,13 +84,14 @@ public class GenreDao implements GenreStorage {
     @Override
     public void updateFilmGenres(Film film) {
         log.info("Получен запрос на добавление жанров фильму");
+        List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
 
         if (film.getGenres() == null) {
-            log.info("Жанры не были обновлены, тк нет изменений");
+            deleteFilmGenres(film, currentFilmGenres);
+            log.info("Удалены все жанры фильма");
             return;
         }
 
-        List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
         Set<Integer> uniqueUpdatedFilmGenres = film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmGenres = new ArrayList<>(currentFilmGenres);

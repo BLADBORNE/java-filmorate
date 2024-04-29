@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.dao.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
@@ -30,6 +31,7 @@ public class FilmDao implements FilmStorage {
     private final RatingStorage ratingStorage;
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     @Override
     public List<Film> getFilms() {
@@ -50,7 +52,8 @@ public class FilmDao implements FilmStorage {
                 rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 ratingStorage.getRatingById(rs.getInt("rating_id")),
-                genreStorage.getFilmsGenres(rs.getInt("film_id")));
+                genreStorage.getFilmsGenres(rs.getInt("film_id")),
+                directorStorage.getFilmsDirectors(rs.getInt("film_id")));
     }
 
     @Override
@@ -69,7 +72,8 @@ public class FilmDao implements FilmStorage {
                     filmRows.getDate("release_date").toLocalDate(),
                     filmRows.getInt("duration"),
                     ratingStorage.getRatingById(filmRows.getInt("rating_id")),
-                    genreStorage.getFilmsGenres(filmRows.getInt("film_id")));
+                    genreStorage.getFilmsGenres(filmRows.getInt("film_id")),
+                    directorStorage.getFilmsDirectors(filmRows.getInt("film_id")));
         }
 
         log.warn(String.format("Отсутствует фильм с id = %s", id));
@@ -100,8 +104,9 @@ public class FilmDao implements FilmStorage {
         log.info("Фильм {} успешно создан", film.getName());
 
         genreStorage.updateFilmGenres(film);
+        directorStorage.updateFilmDirectors(film);
 
-        return film;
+        return getFilmById(film.getId());
     }
 
     @Override
@@ -118,8 +123,9 @@ public class FilmDao implements FilmStorage {
         log.info("Фильм с id = {} успешно обновлен", film.getId());
 
         genreStorage.updateFilmGenres(film);
+        directorStorage.updateFilmDirectors(film);
 
-        return film;
+        return getFilmById(film.getId());
     }
 
     @Override
@@ -237,7 +243,7 @@ public class FilmDao implements FilmStorage {
         if (date.isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
 
-            throw new DateValidationException("Дата фильма должна быть не менше 1895-12-28");
+            throw new DateValidationException("Дата фильма должна быть не меньше 1895-12-28");
         }
     }
 }
