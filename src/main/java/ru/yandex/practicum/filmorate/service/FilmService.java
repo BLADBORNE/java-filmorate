@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -56,7 +55,7 @@ public class FilmService {
         return filmStorage.getDirectorFilm(directorId, sortBy);
     }
 
-    public Collection<Film> searchFilms(String query, String by) {
+    public List<Film> searchFilms(String query, String by) {
         return filmStorage.searchFilms(query, by);
     }
 }

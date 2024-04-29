@@ -18,7 +18,6 @@ import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -232,7 +231,7 @@ public class FilmDao implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> searchFilms(String query, String by) {
+    public List<Film> searchFilms(String query, String by) {
         log.info("Получен запрос = {} на поиск с фильтром по = {}", query, by);
         String dbQuery = "%" + query + "%";
 
