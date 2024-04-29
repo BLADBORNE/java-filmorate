@@ -186,4 +186,12 @@ public class UserDao implements UserStorage {
 
         return userFriend;
     }
+    @Override
+    public List<Integer> getLikedFilmsId(Integer userId) {
+        log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
+
+        String sql = "SELECT film_id FROM film_like WHERE user_id = ?";
+
+        return jdbcTemplate.queryForList(sql,Integer.class);
+    }
 }
