@@ -1,11 +1,13 @@
 package ru.yandex.practicum.filmorate.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,32 +16,27 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommedationService {
+    @Autowired
     private final CollaborativeFilteringService collaborativeFilteringService;
-    private final ContentBasedFilteringService contentBasedFilteringService;
+    @Autowired
     private final UserStorage userStorage;
+    @Autowired
+    private final FilmStorage filmStorage;
 
-    // В случае низкого количествва друзей
-    // Рекомендации тогда будут выводить сначала список фильмов по жанрам
-    // которые предпочитает пользователь отфильтрованных по популярности
-    // в случае если у пользователя нет лайков - тогда будет выводиться рандомный список фильмов.
-
-    public Set<Film> getRecommendation(Integer userId, int limit) {
-        List<User> friends = userStorage.getUsersFriends(userId);
-        List<Integer> likedFilms = userStorage.getLikedFilmsId(userId);
+    public List<Film> getRecommendation(Integer userId) {
+        userStorage.getUserById(userId);
+        List<Film> likedFilms = userStorage.getLikedFilmsId(userId).stream()
+                .map(filmStorage::getFilmById).collect(Collectors.toList());
         Set<Film> recommendation = new HashSet<>();
 
-        if (friends.size() >= 2 && likedFilms.size() >= 2) {
-            recommendation.addAll(collaborativeFilteringService.getRecommendationByFriends(userId));
-        }
-
         if (!likedFilms.isEmpty()) {
-            recommendation.addAll(contentBasedFilteringService.getRecommendationByGenre(userId));
+            recommendation.addAll(collaborativeFilteringService.getRecommendationByUsers(userId));
         }
 
         if (likedFilms.isEmpty()) {
-            recommendation.addAll(contentBasedFilteringService.getPopularRecommendation());
+            return Collections.emptyList();
         }
 
-        return recommendation.stream().limit(limit).collect(Collectors.toSet());
+        return recommendation.stream().distinct().collect(Collectors.toList());
     }
 }
