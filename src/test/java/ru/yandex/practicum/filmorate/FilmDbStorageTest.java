@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         filmService.createNewFilm(film);
@@ -59,6 +61,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         filmService.createNewFilm(film);
@@ -89,6 +92,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         filmService.createNewFilm(film);
@@ -201,6 +205,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         Film film2 = Film.builder()
@@ -210,6 +215,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         Film film3 = Film.builder()
@@ -219,6 +225,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(new ArrayList<>())
                 .build();
 
         filmService.createNewFilm(film1);
