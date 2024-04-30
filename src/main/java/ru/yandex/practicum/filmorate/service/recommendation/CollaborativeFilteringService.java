@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -8,59 +9,62 @@ import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class CollaborativeFilteringService {
+    @Autowired
     private final UserStorage userStorage;
+    @Autowired
     private final FilmStorage filmStorage;
 
-    public List<Film> getRecommendationByFriends(Integer userId) {
-        List<Integer> friendsId = getSortedFriendsBySimilarity(userId);
-        if (friendsId.isEmpty()) {
+    public List<Film> getRecommendationByUsers(Integer userId) {
+        List<Integer> usersId = getSortedUsersBySimilarity(userId);
+        if (usersId.isEmpty()) {
 
             return Collections.emptyList();
         }
 
         List<Integer> userFilms = userStorage.getLikedFilmsId(userId);
-        Set<Integer> recommendationId = new HashSet<>();
 
-        for (Integer friendId : friendsId) {
-            recommendationId.addAll(userStorage.getLikedFilmsId(friendId));
-        }
+        Set<Integer> recommendationId = new HashSet<>(userStorage.getLikedFilmsId(usersId.get(0)));
 
-        recommendationId.retainAll(userFilms);
+        userFilms.forEach(recommendationId::remove);
         List<Film> recommendation = new ArrayList<>();
         recommendationId.forEach(el -> recommendation.add(filmStorage.getFilmById(el)));
 
         return recommendation;
     }
 
-    private List<Integer> getSortedFriendsBySimilarity(Integer userId) {
-        List<User> friends = userStorage.getUsersFriends(userId);
-        List<Integer> friendsId = new ArrayList<>();
+    private List<Integer> getSortedUsersBySimilarity(Integer userId) {
+        List<User> users = userStorage.getUsers().stream()
+                .filter(x -> !x.equals(userStorage.getUserById(userId)))
+                .collect(Collectors.toList());
 
-        for (User friend : friends) {
-            friendsId.add(friend.getId());
+        List<Integer> usersId = new ArrayList<>();
+
+        for (User user : users) {
+            usersId.add(user.getId());
         }
 
-        friendsId.sort(Comparator.comparing(friendId -> findHowSimilar(userId, friendId)));
+        usersId.sort(Comparator.comparing(id -> findHowSimilar(userId, id)));
 
-        friendsId.removeIf(friendId -> {
-            double similarity = findHowSimilar(userId, friendId);
-            return similarity == 0 || similarity == 1;
+        usersId.removeIf(id -> {
+            double similarity = findHowSimilar(userId, id);
+            return similarity == 0;
         });
 
-        return friendsId;
+        return usersId;
     }
 
-    private double findHowSimilar(Integer userId, Integer friendId) {
+    private double findHowSimilar(Integer userId1, Integer userId2) {
         List<Film> films = filmStorage.getFilms();
-        List<Integer> userLikes = userStorage.getLikedFilmsId(userId);
-        List<Integer> friendLikes = userStorage.getLikedFilmsId(friendId);
+        List<Integer> user1Likes = userStorage.getLikedFilmsId(userId1);
+        List<Integer> user2Likes = userStorage.getLikedFilmsId(userId2);
 
-        double[] userVector = generateLikeVector(films, userLikes);
-        double[] friendVector = generateLikeVector(films, friendLikes);
+        double[] userVector = generateLikeVector(films, user1Likes);
+        double[] friendVector = generateLikeVector(films, user2Likes);
 
         return findCosineSimiliraty(userVector, friendVector);
     }
