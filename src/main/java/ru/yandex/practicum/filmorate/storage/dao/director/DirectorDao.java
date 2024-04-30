@@ -93,13 +93,14 @@ public class DirectorDao implements DirectorStorage {
     @Override
     public void updateFilmDirectors(Film film) {
         log.info("Получен запрос на добавление режиссеров фильму");
+        List<Integer> currentFilmDirectors = getFilmsDirectors(film.getId()).stream().map(Director::getId).collect(Collectors.toList());
 
         if (film.getDirectors() == null) {
-            log.info("Режиссеры не были обновлены, тк нет изменений");
+            deleteFilmDirectors(film, currentFilmDirectors);
+            log.info("Удалены все режиссеры фильма");
             return;
         }
 
-        List<Integer> currentFilmDirectors = getFilmsDirectors(film.getId()).stream().map(Director::getId).collect(Collectors.toList());
         Set<Integer> uniqueUpdatedFilmDirectors = film.getDirectors().stream().map(Director::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmDirectors = new ArrayList<>(currentFilmDirectors);
@@ -118,7 +119,7 @@ public class DirectorDao implements DirectorStorage {
     }
 
     public void deleteFilmDirectors(Film film, List<Integer> removedFilmDirectors) {
-        log.info(String.format("Получен запрос на удаление жанров фильма %s", film.getName()));
+        log.info(String.format("Получен запрос на удаление режиссера фильма %s", film.getName()));
 
         removedFilmDirectors.forEach(id -> {
             jdbcTemplate.update("DELETE FROM film_director WHERE id = ? ", id);
@@ -127,8 +128,22 @@ public class DirectorDao implements DirectorStorage {
         });
     }
 
+    public void deleteFilmDirectors(int directorId) {
+        log.info(String.format("Получен запрос на удаление режиссера %s у всех фильмов", directorId));
+        jdbcTemplate.update("DELETE FROM film_director WHERE director_id = ? ", directorId);
+        log.info("Режиссер {} успешно удален у всех фильмов", directorId);
+    }
+
+    @Override
+    public Director deleteDirector(int id) {
+        log.info(String.format("Получен запрос на удаление режиссера %s", id));
+        Director director = getDirectorById(id);
+        deleteFilmDirectors(id);
+        jdbcTemplate.update("DELETE FROM director WHERE id = ?", id);
+        return director;
+    }
+
     public void addDirectorsToFilm(Film film, List<Integer> addedFilmDirectors) {
-        System.out.println("");
         addedFilmDirectors.forEach(id -> {
             jdbcTemplate.update("INSERT INTO film_director (film_id, director_id) " + "VALUES (?, ?)",
                     film.getId(), id);

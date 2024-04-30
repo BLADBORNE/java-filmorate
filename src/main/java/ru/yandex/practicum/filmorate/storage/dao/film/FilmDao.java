@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.dao.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.dao.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
+import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -180,6 +181,34 @@ public class FilmDao implements FilmStorage {
         jdbcTemplate.update("DELETE FROM film_like WHERE film_id = ? AND user_id = ?", filmId, userId);
 
         log.info(String.format("Пользователь %s успешно удалил лайк фильму %s", user.getName(), film.getName()));
+    }
+
+    @Override
+    public List<Film> getDirectorFilm(int directorId, String sortBy) {
+        directorStorage.getDirectorById(directorId);
+        String sql;
+        switch (sortBy) {
+            case "year":
+                sql = "SELECT f.* FROM FILMS f " +
+                        "LEFT JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID " +
+                        "LEFT JOIN DIRECTOR d ON d.ID = fd.DIRECTOR_ID " +
+                        "WHERE d.id = ? " +
+                        "ORDER BY f.release_date";
+                break;
+            case "likes":
+                sql = "SELECT f.*, COUNT(fl.*) as likes FROM FILMS f " +
+                        "LEFT JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID " +
+                        "LEFT JOIN DIRECTOR d ON d.ID = fd.DIRECTOR_ID " +
+                        "LEFT JOIN film_like AS fl ON fl.film_id = f.film_id " +
+                        "WHERE d.id = ? " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY likes DESC";
+                break;
+            default:
+                throw new ValidationException("Неизвестный параметр сортировки sortBy=" + sortBy);
+        }
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
     }
 
     @Override
