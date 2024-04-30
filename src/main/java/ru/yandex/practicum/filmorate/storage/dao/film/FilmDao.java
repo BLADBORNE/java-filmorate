@@ -209,20 +209,38 @@ public class FilmDao implements FilmStorage {
 
         switch (by) {
             case "title":
-                String sql =
+                String sqlTitle =
                         "SELECT f.* " +
-                                "FROM films AS f " +
-                                "JOIN film_like AS l ON f.film_id = l.film_id" +
-                                "WHERE LOWER(f.name) LIKE LOWER(?) " +
-                                "ORDER BY COUNT(l.user_id) DESC;";
-                return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), dbQuery);
+                        "FROM films AS f " +
+                        "JOIN film_like AS l ON f.film_id = l.film_id " +
+                        "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlTitle, (rs, rowNum) -> makeFilm(rs), dbQuery);
             case "director":
-                return null; // метод из задания "Добавление режиссёров в фильм"
-
+                String sqlDirector =
+                        "SELECT f.* " +
+                        "FROM films AS f " +
+                        "JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "JOIN director AS d ON fd.director_id = d.id " +
+                        "JOIN film_like AS l ON fl.film_id = f.film_id " +
+                        "WHERE d.name LIKE ? " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlDirector, (rs, rowNum) -> makeFilm(rs), dbQuery);
             case "director,title":
             case "title,director":
-                return null; // метод из задания "Добавление режиссёров в фильм"
-
+                String sqlDirectorOrTitle =
+                        "SELECT f.* " +
+                        "FROM films AS f " +
+                        "JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "JOIN director AS d ON fd.director_id = d.id " +
+                        "JOIN film_like AS l ON fl.film_id = f.film_id " +
+                        "WHERE d.name LIKE ? " +
+                                "OR f.name LIKE ? " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
             default:
                 NoSuchElementException e = new NoSuchElementException("Параметр запроса не найден");
                 log.error(by, e);
