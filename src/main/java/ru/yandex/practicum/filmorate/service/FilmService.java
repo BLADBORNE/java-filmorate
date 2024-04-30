@@ -52,6 +52,10 @@ public class FilmService {
         return filmStorage.getFilmLikes(id);
     }
 
+    public List<Film> getDirectorFilm(int directorId, String sortBy) {
+        return filmStorage.getDirectorFilm(directorId, sortBy);
+    }
+
     public Collection<Film> searchFilms(String query, String by) {
         return filmStorage.searchFilms(query, by);
     }

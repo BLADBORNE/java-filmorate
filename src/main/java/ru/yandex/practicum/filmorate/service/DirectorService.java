@@ -27,4 +27,8 @@ public class DirectorService {
     public Director updateNewDirector(Director director) {
         return directorStorage.updateNewDirector(director);
     }
+
+    public Director deleteDirector(int id) {
+        return directorStorage.deleteDirector(id);
+    }
 }
