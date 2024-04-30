@@ -200,6 +200,6 @@ public class UserDao implements UserStorage {
 
         String sql = "SELECT film_id FROM film_like WHERE user_id = ?";
 
-        return jdbcTemplate.queryForList(sql,Integer.class);
+        return jdbcTemplate.queryForList(sql,Integer.class, userId);
     }
 }
