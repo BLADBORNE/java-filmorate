@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,7 +83,7 @@ public class FilmDbStorageTest {
 
         filmService.updateFilm(film);
 
-        assertEquals(1,filmService.getFilms().size());
+        assertEquals(1, filmService.getFilms().size());
         assertTrue(filmService.getFilms().contains(film));
         assertFalse(filmService.getFilms().contains(filmFromBd));
     }
@@ -243,10 +244,232 @@ public class FilmDbStorageTest {
         filmService.addLikeToFilm(film3.getId(), user2.getId());
         filmService.addLikeToFilm(film3.getId(), user3.getId());
 
-        List<Film> topThreeFilmsByLikes = filmService.getTopFilmsByLikes(3);
+        List<Film> topThreeFilmsByLikes = filmService.getTopFilmsByLikes(3, null, null);
 
         assertNotNull(topThreeFilmsByLikes);
         assertEquals(3, topThreeFilmsByLikes.size());
         assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
+    }
+
+    @Test
+    public void shouldGetTopFilmsByLikesAndFindOnlyWithYear1998WithCorrectSorting() {
+        User user1 = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User user2 = User.builder()
+                .email("iliashacool@gmail.com")
+                .login("Maxim")
+                .name("Max228")
+                .birthday(LocalDate.of(2012, 12, 1))
+                .build();
+
+        User user3 = User.builder()
+                .email("test12@gmail.com")
+                .login("Anstasya")
+                .name("Milo23")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.createNewUser(user3);
+
+        Film film1 = Film.builder()
+                .name("Test1")
+                .description("TestDescription1")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Test2")
+                .description("TestDescription2")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film3 = Film.builder()
+                .name("Test3")
+                .description("TestDescription3")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        filmService.createNewFilm(film1);
+        filmService.createNewFilm(film2);
+        filmService.createNewFilm(film3);
+
+        filmService.addLikeToFilm(film1.getId(), user1.getId());
+        filmService.addLikeToFilm(film1.getId(), user2.getId());
+
+        filmService.addLikeToFilm(film2.getId(), user1.getId());
+
+        filmService.addLikeToFilm(film3.getId(), user1.getId());
+        filmService.addLikeToFilm(film3.getId(), user2.getId());
+        filmService.addLikeToFilm(film3.getId(), user3.getId());
+
+        List<Film> topFilmsByLikes = filmService.getTopFilmsByLikes(3, null, 1998);
+
+        assertNotNull(topFilmsByLikes);
+        assertEquals(2, topFilmsByLikes.size());
+        assertEquals(film1, topFilmsByLikes.get(0));
+    }
+
+    @Test
+    public void shouldGetTopFilmsByLikesAndFindOnlyWithGenre2WithCorrectSorting() {
+        User user1 = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User user2 = User.builder()
+                .email("iliashacool@gmail.com")
+                .login("Maxim")
+                .name("Max228")
+                .birthday(LocalDate.of(2012, 12, 1))
+                .build();
+
+        User user3 = User.builder()
+                .email("test12@gmail.com")
+                .login("Anstasya")
+                .name("Milo23")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.createNewUser(user3);
+
+        Film film1 = Film.builder()
+                .name("Test1")
+                .description("TestDescription1")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(2, genres.get(2))))
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Test2")
+                .description("TestDescription2")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1))))
+                .build();
+
+        Film film3 = Film.builder()
+                .name("Test3")
+                .description("TestDescription3")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(2, genres.get(2))))
+                .build();
+
+        filmService.createNewFilm(film1);
+        filmService.createNewFilm(film2);
+        filmService.createNewFilm(film3);
+
+        filmService.addLikeToFilm(film1.getId(), user1.getId());
+        filmService.addLikeToFilm(film1.getId(), user2.getId());
+
+        filmService.addLikeToFilm(film2.getId(), user1.getId());
+
+        filmService.addLikeToFilm(film3.getId(), user1.getId());
+        filmService.addLikeToFilm(film3.getId(), user2.getId());
+        filmService.addLikeToFilm(film3.getId(), user3.getId());
+
+        List<Film> topFilmsByLikes = filmService.getTopFilmsByLikes(3, 2, null);
+
+        assertNotNull(topFilmsByLikes);
+        assertEquals(2, topFilmsByLikes.size());
+        assertEquals(film3, topFilmsByLikes.get(0));
+    }
+
+    @Test
+    public void shouldGetTopFilmsByLikesAndFindOnlyWithYear1998AndCorrectGenre() {
+        User user1 = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User user2 = User.builder()
+                .email("iliashacool@gmail.com")
+                .login("Maxim")
+                .name("Max228")
+                .birthday(LocalDate.of(2012, 12, 1))
+                .build();
+
+        User user3 = User.builder()
+                .email("test12@gmail.com")
+                .login("Anstasya")
+                .name("Milo23")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.createNewUser(user3);
+
+        Film film1 = Film.builder()
+                .name("Test1")
+                .description("TestDescription1")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(2, genres.get(2))))
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Test2")
+                .description("TestDescription2")
+                .releaseDate(LocalDate.of(1998, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1))))
+                .build();
+
+        Film film3 = Film.builder()
+                .name("Test3")
+                .description("TestDescription3")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(2, genres.get(2))))
+                .build();
+
+        filmService.createNewFilm(film1);
+        filmService.createNewFilm(film2);
+        filmService.createNewFilm(film3);
+
+        filmService.addLikeToFilm(film1.getId(), user1.getId());
+        filmService.addLikeToFilm(film1.getId(), user2.getId());
+
+        filmService.addLikeToFilm(film2.getId(), user1.getId());
+
+        filmService.addLikeToFilm(film3.getId(), user1.getId());
+        filmService.addLikeToFilm(film3.getId(), user2.getId());
+        filmService.addLikeToFilm(film3.getId(), user3.getId());
+
+        List<Film> topFilmsByLikes = filmService.getTopFilmsByLikes(3, 2, 1998);
+
+        assertNotNull(topFilmsByLikes);
+        assertEquals(1, topFilmsByLikes.size());
+        assertEquals(film1, topFilmsByLikes.get(0));
     }
 }

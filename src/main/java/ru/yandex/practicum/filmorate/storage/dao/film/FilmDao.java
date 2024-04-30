@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage.dao.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -18,10 +20,7 @@ import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -155,6 +154,46 @@ public class FilmDao implements FilmStorage {
                 "LIMIT ?;";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year) {
+        log.info(String.format("Получен запрос на получении топ %s лучших фильмов по жанрам = %s и годам = %s",
+                count,
+                genreId,
+                year));
+
+        StringBuilder sql = new StringBuilder("SELECT f.*\n" +
+                "FROM films AS f\n" +
+                "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id\n");
+
+        List<Object> params = new ArrayList<>();
+
+        if (genreId != null) {
+            sql.append("JOIN film_genre AS fg ON f.film_id = fg.film_id AND fg.genre_id = ?\n");
+            params.add(genreId);
+        }
+
+        if (year != null) {
+            sql.append("WHERE YEAR(f.release_date) = ?\n");
+            params.add(year);
+        }
+
+        sql.append("GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id\n" +
+                "ORDER BY COUNT(fl.user_id) DESC\n");
+
+        if (count != null) {
+            sql.append("LIMIT ?;");
+            params.add(count);
+        }
+
+
+        log.info(String.format("Топ %s лучших фильмов по жанрам = %s и годам = %s отправлены клиенту",
+                count,
+                genreId,
+                year));
+
+        return jdbcTemplate.query(sql.toString(), params.toArray(), (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
