@@ -261,8 +261,8 @@ public class FilmDao implements FilmStorage {
                 String sqlDirectorOrTitle =
                         "SELECT f.* " +
                         "FROM films AS f " +
-                        "JOIN film_director AS fd ON f.film_id = fd.film_id " +
-                        "JOIN director AS d ON fd.director_id = d.id " +
+                        "LEFT JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "LEFT JOIN director AS d ON fd.director_id = d.id " +
                         "LEFT JOIN film_like AS l ON f.film_id = l.film_id " +
                         "WHERE LOWER(d.name) LIKE LOWER(?) " +
                                 "OR LOWER(f.name) LIKE LOWER(?) " +
