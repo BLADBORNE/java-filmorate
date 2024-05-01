@@ -66,7 +66,6 @@ public class DirectorDao implements DirectorStorage {
                 .usingGeneratedKeyColumns("id");
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("id", director.getId());
         parameters.put("name", director.getName());
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
