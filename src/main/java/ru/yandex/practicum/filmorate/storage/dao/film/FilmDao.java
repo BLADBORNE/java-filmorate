@@ -251,7 +251,7 @@ public class FilmDao implements FilmStorage {
                         "FROM films AS f " +
                         "JOIN film_director AS fd ON f.film_id = fd.film_id " +
                         "JOIN director AS d ON fd.director_id = d.id " +
-                        "JOIN film_like AS l ON fl.film_id = f.film_id " +
+                        "JOIN film_like AS l ON l.film_id = f.film_id " +
                         "WHERE LOWER(d.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
                         "ORDER BY COUNT(l.user_id) DESC;";
@@ -263,7 +263,7 @@ public class FilmDao implements FilmStorage {
                         "FROM films AS f " +
                         "JOIN film_director AS fd ON f.film_id = fd.film_id " +
                         "JOIN director AS d ON fd.director_id = d.id " +
-                        "JOIN film_like AS l ON fl.film_id = f.film_id " +
+                        "JOIN film_like AS l ON l.film_id = f.film_id " +
                         "WHERE LOWER(d.name) LIKE LOWER(?) " +
                                 "OR LOWER(f.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +

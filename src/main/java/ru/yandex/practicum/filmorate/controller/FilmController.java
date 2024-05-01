@@ -29,24 +29,21 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getTopFilmsByLikes(
-            @RequestParam(value = "count", defaultValue = "10", required = false) int count
-    ) {
+            @RequestParam(value = "count", defaultValue = "10", required = false) int count) {
         return service.getTopFilmsByLikes(count);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public void addLikeToFilm(
             @PathVariable(value = "filmId") int filmId,
-            @PathVariable(value = "userId") int userId
-    ) {
+            @PathVariable(value = "userId") int userId) {
         service.addLikeToFilm(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLikeFromFilm(
             @PathVariable(value = "filmId") int filmId,
-            @PathVariable(value = "userId") int userId
-    ) {
+            @PathVariable(value = "userId") int userId) {
         service.deleteLikeFromFilm(filmId, userId);
     }
 
@@ -62,8 +59,7 @@ public class FilmController {
 
     @DeleteMapping(value = {"", "/{filmId}"})
     public Film deleteFilmById(
-            @PathVariable(value = "filmId", required = false) Optional<Integer> filmId
-    ) {
+            @PathVariable(value = "filmId", required = false) Optional<Integer> filmId) {
         if (filmId.isEmpty()) {
             throw new IllegalArgumentException("При удалении фильма не был передан id");
         }
@@ -74,8 +70,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<Film> getDirectorFilm(
             @PathVariable(value = "directorId") int directorId,
-            @RequestParam(value = "sortBy") String sortBy
-    ) {
+            @RequestParam(value = "sortBy") String sortBy) {
         return service.getDirectorFilm(directorId, sortBy);
     }
   
