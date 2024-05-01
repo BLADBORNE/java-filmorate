@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.film.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.dao.film.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.dao.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.dao.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import javax.validation.ValidationException;
@@ -146,7 +146,7 @@ public class FilmDao implements FilmStorage {
         String sql = "SELECT f.*\n" +
                 "FROM films AS f\n" +
                 "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id\n" +
-                "GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id\n" +
+                "GROUP BY f.film_id\n" +
                 "ORDER BY COUNT(fl.user_id) DESC\n" +
                 "LIMIT ?;";
 
