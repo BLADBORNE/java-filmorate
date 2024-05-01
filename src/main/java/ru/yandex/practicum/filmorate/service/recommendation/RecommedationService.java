@@ -27,16 +27,16 @@ public class RecommedationService {
         userStorage.getUserById(userId);
         List<Film> likedFilms = userStorage.getLikedFilmsId(userId).stream()
                 .map(filmStorage::getFilmById).collect(Collectors.toList());
-        Set<Film> recommendation = new HashSet<>();
+        Set<Film> recommendations = new HashSet<>();
 
         if (!likedFilms.isEmpty()) {
-            recommendation.addAll(collaborativeFilteringService.getRecommendationByUsers(userId));
+            recommendations.addAll(collaborativeFilteringService.getRecommendationByUsers(userId));
         }
 
         if (likedFilms.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return recommendation.stream().distinct().collect(Collectors.toList());
+        return recommendations.stream().distinct().collect(Collectors.toList());
     }
 }
