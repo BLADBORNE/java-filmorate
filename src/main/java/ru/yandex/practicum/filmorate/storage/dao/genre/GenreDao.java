@@ -72,10 +72,10 @@ public class GenreDao implements GenreStorage {
         });
     }
 
-    public void deleteFilmGenres(int film_id) {
-        log.info(String.format("Получен запрос на удаление всех жанров фильма %s", film_id));
-        jdbcTemplate.update("DELETE FROM film_genre WHERE film_id = ? ", film_id);
-        log.info(String.format("Все жанры фильма %s успешно удалены", film_id));
+    public void deleteFilmGenres(int filmId) {
+        log.info(String.format("Получен запрос на удаление всех жанров фильма %s", filmId));
+        jdbcTemplate.update("DELETE FROM film_genre WHERE film_id = ? ", filmId);
+        log.info(String.format("Все жанры фильма %s успешно удалены", filmId));
     }
 
     public void addGenresToFilm(Film film, List<Integer> addedFilmGenres) {
