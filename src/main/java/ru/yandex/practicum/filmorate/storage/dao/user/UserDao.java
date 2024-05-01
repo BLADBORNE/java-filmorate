@@ -81,13 +81,18 @@ public class UserDao implements UserStorage {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("email", user.getEmail());
         parameters.put("login", user.getLogin());
-        parameters.put("name", user.getName());
+        if (user.getName() == null || user.getName().isBlank()) {
+            parameters.put("name", user.getLogin());
+            user.setName(user.getLogin());
+        } else {
+            parameters.put("name", user.getName());
+        }
+
         parameters.put("birthday", user.getBirthday());
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
         user.setId(generatedId.intValue());
-
         log.info("Пользователь {} успешно создан", user.getName());
         return user;
     }
