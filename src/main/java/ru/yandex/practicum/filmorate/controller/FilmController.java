@@ -58,8 +58,7 @@ public class FilmController {
     }
 
     @DeleteMapping(value = {"", "/{filmId}"})
-    public Film deleteFilmById(
-            @PathVariable(value = "filmId", required = false) Optional<Integer> filmId) {
+    public Film deleteFilmById(@PathVariable(value = "filmId", required = false) Optional<Integer> filmId) {
         if (filmId.isEmpty()) {
             throw new IllegalArgumentException("При удалении фильма не был передан id");
         }
@@ -73,7 +72,7 @@ public class FilmController {
             @RequestParam(value = "sortBy") String sortBy) {
         return service.getDirectorFilm(directorId, sortBy);
     }
-  
+
     @GetMapping("/search")
     public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
         return service.searchFilms(query, by);
