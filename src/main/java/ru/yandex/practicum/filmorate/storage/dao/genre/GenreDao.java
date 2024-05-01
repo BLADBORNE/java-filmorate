@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -82,8 +79,7 @@ public class GenreDao implements GenreStorage {
     }
 
     public void addGenresToFilm(Film film, List<Integer> addedFilmGenres) {
-        List<Integer> genresWithoutDuplicates = addedFilmGenres.stream().distinct().collect(Collectors.toList());
-        genresWithoutDuplicates.forEach(genre -> {
+        addedFilmGenres.forEach(genre -> {
             jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) " + "VALUES (?, ?)",
                     film.getId(), genre);
 
@@ -101,8 +97,7 @@ public class GenreDao implements GenreStorage {
         }
 
         List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
-        List<Integer> uniqueUpdatedFilmGenres = film.getGenres().stream().map(Genre::getId)
-                .distinct().collect(Collectors.toList());
+        Set<Integer> uniqueUpdatedFilmGenres = film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmGenres = new ArrayList<>(currentFilmGenres);
         List<Integer> addedFilmGenres = new ArrayList<>(uniqueUpdatedFilmGenres);
