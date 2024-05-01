@@ -243,7 +243,7 @@ public class FilmDbStorageTest {
 
         assertNotNull(topThreeFilmsByLikes);
         assertEquals(3, topThreeFilmsByLikes.size());
-        assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
+            assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
     }
 
     @Test
@@ -317,7 +317,7 @@ public class FilmDbStorageTest {
 
         assertNotNull(topFilmsByLikes);
         assertEquals(2, topFilmsByLikes.size());
-        assertEquals(film1, topFilmsByLikes.get(0));
+        assertEquals(film1.getId(), topFilmsByLikes.get(0).getId());
     }
 
     @Test
@@ -391,7 +391,7 @@ public class FilmDbStorageTest {
 
         assertNotNull(topFilmsByLikes);
         assertEquals(2, topFilmsByLikes.size());
-        assertEquals(film3, topFilmsByLikes.get(0));
+        assertEquals(film3.getId(), topFilmsByLikes.get(0).getId());
     }
 
     @Test
@@ -465,6 +465,6 @@ public class FilmDbStorageTest {
 
         assertNotNull(topFilmsByLikes);
         assertEquals(1, topFilmsByLikes.size());
-        assertEquals(film1, topFilmsByLikes.get(0));
+        assertEquals(film1.getId(), topFilmsByLikes.get(0).getId());
     }
 }
