@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -243,8 +242,8 @@ public class FilmDbStorageTest {
 
         List<Film> topThreeFilmsByLikes = filmService.getTopFilmsByLikes(3);
 
-//        assertNotNull(topThreeFilmsByLikes);
-//        assertEquals(3, topThreeFilmsByLikes.size());
-            assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
+        assertNotNull(topThreeFilmsByLikes);
+        assertEquals(3, topThreeFilmsByLikes.size());
+        assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
     }
 }
