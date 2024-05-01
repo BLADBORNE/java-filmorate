@@ -240,7 +240,7 @@ public class FilmDao implements FilmStorage {
                 String sqlTitle =
                         "SELECT f.* " +
                         "FROM films AS f " +
-                        "JOIN film_like AS l ON f.film_id = l.film_id " +
+                        "LEFT JOIN film_like AS l ON f.film_id = l.film_id " +
                         "WHERE LOWER(f.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
                         "ORDER BY COUNT(l.user_id) DESC;";
@@ -252,7 +252,7 @@ public class FilmDao implements FilmStorage {
                         "JOIN film_director AS fd ON f.film_id = fd.film_id " +
                         "JOIN director AS d ON fd.director_id = d.id " +
                         "JOIN film_like AS l ON fl.film_id = f.film_id " +
-                        "WHERE d.name LIKE ? " +
+                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
                         "ORDER BY COUNT(l.user_id) DESC;";
                 return jdbcTemplate.query(sqlDirector, (rs, rowNum) -> makeFilm(rs), dbQuery);
@@ -264,8 +264,8 @@ public class FilmDao implements FilmStorage {
                         "JOIN film_director AS fd ON f.film_id = fd.film_id " +
                         "JOIN director AS d ON fd.director_id = d.id " +
                         "JOIN film_like AS l ON fl.film_id = f.film_id " +
-                        "WHERE d.name LIKE ? " +
-                                "OR f.name LIKE ? " +
+                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
+                                "OR LOWER(f.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
                         "ORDER BY COUNT(l.user_id) DESC;";
                 return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
