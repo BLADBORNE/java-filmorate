@@ -50,4 +50,8 @@ public class FilmService {
     public List<User> getFilmLikes(int id) {
         return filmStorage.getFilmLikes(id);
     }
+
+    public List<Film> getDirectorFilm(int directorId, String sortBy) {
+        return filmStorage.getDirectorFilm(directorId, sortBy);
+    }
 }

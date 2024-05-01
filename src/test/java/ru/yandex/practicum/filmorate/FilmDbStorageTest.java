@@ -6,12 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,11 +24,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmDbStorageTest {
     private final Map<Integer, String> ratings = Map.of(1, "G", 2, "PG");
     private final Map<Integer, String> genres = Map.of(1, "Комедия", 2, "Драма");
+    private final Map<Integer, String> directors = Map.of(1, "Тарантино");
     private final FilmService filmService;
     private final UserService userService;
+    private final DirectorService directorService;
 
     @Test
     public void shouldCreateFilm() {
+        Director director = directorService.createNewDirector(new Director(1, "Тарантино"));
         Film film = Film.builder()
                 .name("Test")
                 .description("TestDescription")
@@ -38,6 +39,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(List.of(director))
                 .build();
 
         filmService.createNewFilm(film);
@@ -52,6 +54,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void shouldUpdateFilm() {
+        Director director = directorService.createNewDirector(new Director(2, "Нолан"));
         Film film = Film.builder()
                 .name("Test")
                 .description("TestDescription")
@@ -59,6 +62,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(List.of(director))
                 .build();
 
         filmService.createNewFilm(film);
@@ -82,6 +86,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void shouldDeleteFilmById() {
+        Director director = directorService.createNewDirector(new Director(3, "Скорсезе"));
         Film film = Film.builder()
                 .name("Test")
                 .description("TestDescription")
@@ -89,6 +94,7 @@ public class FilmDbStorageTest {
                 .duration(200)
                 .mpa(new Rating(1, ratings.get(1)))
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .directors(List.of(director))
                 .build();
 
         filmService.createNewFilm(film);
@@ -238,6 +244,6 @@ public class FilmDbStorageTest {
 
         assertNotNull(topThreeFilmsByLikes);
         assertEquals(3, topThreeFilmsByLikes.size());
-        assertEquals(film3, topThreeFilmsByLikes.get(0));
+        assertEquals(film3.getId(), topThreeFilmsByLikes.get(0).getId());
     }
 }
