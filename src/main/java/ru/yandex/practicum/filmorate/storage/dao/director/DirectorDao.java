@@ -92,14 +92,13 @@ public class DirectorDao implements DirectorStorage {
     @Override
     public void updateFilmDirectors(Film film) {
         log.info("Получен запрос на добавление режиссеров фильму");
-        List<Integer> currentFilmDirectors = getFilmsDirectors(film.getId()).stream().map(Director::getId).collect(Collectors.toList());
 
         if (film.getDirectors() == null) {
-            deleteFilmDirectors(film, currentFilmDirectors);
-            log.info("Удалены все режиссеры фильма");
+            deleteDirectorsByFilmId(film.getId());
             return;
         }
 
+        List<Integer> currentFilmDirectors = getFilmsDirectors(film.getId()).stream().map(Director::getId).collect(Collectors.toList());
         Set<Integer> uniqueUpdatedFilmDirectors = film.getDirectors().stream().map(Director::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmDirectors = new ArrayList<>(currentFilmDirectors);
@@ -131,6 +130,12 @@ public class DirectorDao implements DirectorStorage {
         log.info(String.format("Получен запрос на удаление режиссера %s у всех фильмов", directorId));
         jdbcTemplate.update("DELETE FROM film_director WHERE director_id = ? ", directorId);
         log.info("Режиссер {} успешно удален у всех фильмов", directorId);
+    }
+
+    public void deleteDirectorsByFilmId(int film_id) {
+        log.info(String.format("Получен запрос на удаление режиссеров у фильма $s", film_id));
+        jdbcTemplate.update("DELETE FROM film_director WHERE film_id = ? ", film_id);
+        log.info("Режиссеры успешно удалены у фильма {}", film_id);
     }
 
     @Override
