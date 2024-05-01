@@ -72,6 +72,12 @@ public class GenreDao implements GenreStorage {
         });
     }
 
+    public void deleteFilmGenres(int film_id) {
+        log.info(String.format("Получен запрос на удаление всех жанров фильма %s", film_id));
+        jdbcTemplate.update("DELETE FROM film_genre WHERE film_id = ? ", film_id);
+        log.info(String.format("Все жанры фильма %s успешно удалены", film_id));
+    }
+
     public void addGenresToFilm(Film film, List<Integer> addedFilmGenres) {
         addedFilmGenres.forEach(genre -> {
             jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) " + "VALUES (?, ?)",
@@ -84,14 +90,13 @@ public class GenreDao implements GenreStorage {
     @Override
     public void updateFilmGenres(Film film) {
         log.info("Получен запрос на добавление жанров фильму");
-        List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
 
         if (film.getGenres() == null) {
-            deleteFilmGenres(film, currentFilmGenres);
-            log.info("Удалены все жанры фильма");
+            deleteFilmGenres(film.getId());
             return;
         }
 
+        List<Integer> currentFilmGenres = getFilmsGenres(film.getId()).stream().map(Genre::getId).collect(Collectors.toList());
         Set<Integer> uniqueUpdatedFilmGenres = film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
 
         List<Integer> removedFilmGenres = new ArrayList<>(currentFilmGenres);
