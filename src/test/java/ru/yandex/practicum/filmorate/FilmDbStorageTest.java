@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmDbStorageTest {
     private final Map<Integer, String> ratings = Map.of(1, "G", 2, "PG");
     private final Map<Integer, String> genres = Map.of(1, "Комедия", 2, "Драма");
-    private final Map<Integer, String> directors = Map.of(1, "Тарантино");
     private final FilmService filmService;
     private final UserService userService;
     private final DirectorService directorService;
