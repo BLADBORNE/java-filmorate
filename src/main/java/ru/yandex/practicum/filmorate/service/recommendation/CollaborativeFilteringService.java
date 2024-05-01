@@ -20,21 +20,21 @@ public class CollaborativeFilteringService {
     private final FilmStorage filmStorage;
 
     public List<Film> getRecommendationByUsers(Integer userId) {
-        List<Integer> usersId = getSortedUsersBySimilarity(userId);
-        if (usersId.isEmpty()) {
+        List<Integer> userIds = getSortedUsersBySimilarity(userId);
+        if (userIds.isEmpty()) {
 
             return Collections.emptyList();
         }
 
         List<Integer> userFilms = userStorage.getLikedFilmsId(userId);
 
-        Set<Integer> recommendationId = new HashSet<>(userStorage.getLikedFilmsId(usersId.get(0)));
+        Set<Integer> recommendationIds = new HashSet<>(userStorage.getLikedFilmsId(userIds.get(0)));
 
-        userFilms.forEach(recommendationId::remove);
-        List<Film> recommendation = new ArrayList<>();
-        recommendationId.forEach(el -> recommendation.add(filmStorage.getFilmById(el)));
+        userFilms.forEach(recommendationIds::remove);
+        List<Film> recommendations = new ArrayList<>();
+        recommendationIds.forEach(el -> recommendations.add(filmStorage.getFilmById(el)));
 
-        return recommendation;
+        return recommendations;
     }
 
     private List<Integer> getSortedUsersBySimilarity(Integer userId) {
@@ -42,20 +42,20 @@ public class CollaborativeFilteringService {
                 .filter(x -> !x.equals(userStorage.getUserById(userId)))
                 .collect(Collectors.toList());
 
-        List<Integer> usersId = new ArrayList<>();
+        List<Integer> userIds = new ArrayList<>();
 
         for (User user : users) {
-            usersId.add(user.getId());
+            userIds.add(user.getId());
         }
 
-        usersId.sort(Comparator.comparing(id -> findHowSimilar(userId, id)));
+        userIds.sort(Comparator.comparing(id -> findHowSimilar(userId, id)));
 
-        usersId.removeIf(id -> {
+        userIds.removeIf(id -> {
             double similarity = findHowSimilar(userId, id);
             return similarity == 0;
         });
 
-        return usersId;
+        return userIds;
     }
 
     private double findHowSimilar(Integer userId1, Integer userId2) {
