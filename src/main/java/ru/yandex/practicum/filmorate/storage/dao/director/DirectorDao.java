@@ -132,10 +132,10 @@ public class DirectorDao implements DirectorStorage {
         log.info("Режиссер {} успешно удален у всех фильмов", directorId);
     }
 
-    public void deleteDirectorsByFilmId(int film_id) {
-//        log.info(String.format("Получен запрос на удаление режиссеров у фильма с id = %s", film_id));
-        jdbcTemplate.update("DELETE FROM film_director WHERE film_id = ? ", film_id);
-//        log.info(String.format("Режиссеры успешно удалены у фильма с id = %s", film_id));
+    public void deleteDirectorsByFilmId(int filmId) {
+        log.info(String.format("Получен запрос на удаление режиссеров у фильма с id = %s", filmId));
+        jdbcTemplate.update("DELETE FROM film_director WHERE film_id = ? ", filmId);
+        log.info(String.format("Режиссеры успешно удалены у фильма с id = %s", filmId));
     }
 
     @Override
