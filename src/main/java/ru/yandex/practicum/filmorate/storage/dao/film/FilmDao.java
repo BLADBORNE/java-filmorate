@@ -96,14 +96,12 @@ public class FilmDao implements FilmStorage {
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
-        film.setId(generatedId.intValue());
-
         log.info("Фильм {} успешно создан", film.getName());
 
         genreStorage.updateFilmGenres(film);
         directorStorage.updateFilmDirectors(film);
 
-        return getFilmById(film.getId());
+        return getFilmById(generatedId.intValue());
     }
 
     @Override
