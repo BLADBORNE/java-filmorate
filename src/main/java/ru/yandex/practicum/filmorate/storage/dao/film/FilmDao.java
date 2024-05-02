@@ -98,6 +98,7 @@ public class FilmDao implements FilmStorage {
 
         log.info("Фильм {} успешно создан", film.getName());
 
+        film.setId(generatedId.intValue());
         genreStorage.updateFilmGenres(film);
         directorStorage.updateFilmDirectors(film);
 
