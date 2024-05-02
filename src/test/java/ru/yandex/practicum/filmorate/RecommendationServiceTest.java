@@ -114,7 +114,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void ReccommendationWillBeEmptyIfThereIsNoLikes() {
+    public void recommendationWillBeEmptyIfThereIsNoLikes() {
         int filmid1 = filmService.getFilms().get(0).getId();
         int filmid2 = filmService.getFilms().get(1).getId();
 
@@ -130,7 +130,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void ReccommendationWillBeEmptyIfThereIsLikesIsSame() {
+    public void recommendationWillBeEmptyIfThereIsLikesIsSame() {
         int filmid1 = filmService.getFilms().get(0).getId();
         int filmid2 = filmService.getFilms().get(1).getId();
 
@@ -148,7 +148,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void ReccommendationWillNotFindsToIncorrectId() {
+    public void recommendationWillNotFindsToIncorrectId() {
         int filmid1 = filmService.getFilms().get(0).getId();
         int filmid2 = filmService.getFilms().get(1).getId();
 
