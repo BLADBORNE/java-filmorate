@@ -18,7 +18,10 @@ import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Component
 @Slf4j
@@ -191,6 +194,24 @@ public class FilmDao implements FilmStorage {
                 year));
 
         return jdbcTemplate.query(sql.toString(), params.toArray(), (rs, rowNum) -> makeFilm(rs));
+    }
+
+    @Override
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+
+        log.info(String.format("Получен запрос на получение общих фильмов для пользователей %s и %s",
+                userId1, userId2));
+
+        log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
+
+        String sql = "SELECT f.*\n" +
+                "FROM films AS f\n" +
+                "JOIN film_like fl1 ON f.film_id = fl1.film_id AND fl1.user_id = ? \n" +
+                "JOIN film_like fl2  ON f.film_id = fl2.film_id AND fl2.user_id = ? \n" +
+                "GROUP BY f.film_id\n" +
+                "ORDER BY (SELECT COUNT(user_id) FROM film_like WHERE f.film_id = film_id) DESC;";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId1, userId2);
     }
 
     @Override

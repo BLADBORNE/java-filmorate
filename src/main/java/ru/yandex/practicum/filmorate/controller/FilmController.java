@@ -36,6 +36,14 @@ public class FilmController {
         return service.getTopFilmsByLikes(count, genreId, year);
     }
 
+    @GetMapping("/common")
+    public List<Film> getTopCommonsFilms(
+            @RequestParam(value = "userId") int userId,
+            @RequestParam(value = "friendId") int friendId
+    ) {
+        return service.getTopCommonFilms(userId, friendId);
+    }
+
     @PutMapping("/{filmId}/like/{userId}")
     public void addLikeToFilm(
             @PathVariable(value = "filmId") int filmId,
