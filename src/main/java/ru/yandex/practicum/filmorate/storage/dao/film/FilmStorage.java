@@ -22,6 +22,8 @@ public interface FilmStorage {
 
     List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year);
 
+    List<Film> getTopCommonFilms(int userId1, int userId2);
+
     void addLikeToFilm(int filmId, int userId);
 
     void deleteLikeFromFilm(int filmId, int userId);

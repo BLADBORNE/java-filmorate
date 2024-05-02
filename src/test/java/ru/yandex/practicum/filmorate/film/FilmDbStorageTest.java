@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -466,5 +467,152 @@ public class FilmDbStorageTest {
         assertNotNull(topFilmsByLikes);
         assertEquals(1, topFilmsByLikes.size());
         assertEquals(createdFilm1.getId(), topFilmsByLikes.get(0).getId());
+    }
+
+    @Test
+    public void shouldGetTopCommonsFilms() {
+        User user1 = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User user2 = User.builder()
+                .email("iliashacool@gmail.com")
+                .login("Maxim")
+                .name("Max228")
+                .birthday(LocalDate.of(2012, 12, 1))
+                .build();
+
+        User user3 = User.builder()
+                .email("test12@gmail.com")
+                .login("Anstasya")
+                .name("Milo23")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.createNewUser(user3);
+
+        Film film1 = Film.builder()
+                .name("Test1")
+                .description("TestDescription1")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Test2")
+                .description("TestDescription2")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film3 = Film.builder()
+                .name("Test3")
+                .description("TestDescription3")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        filmService.createNewFilm(film1);
+        filmService.createNewFilm(film2);
+        filmService.createNewFilm(film3);
+
+        filmService.addLikeToFilm(film1.getId(), user1.getId());
+        filmService.addLikeToFilm(film1.getId(), user2.getId());
+
+        filmService.addLikeToFilm(film2.getId(), user1.getId());
+
+        filmService.addLikeToFilm(film3.getId(), user1.getId());
+        filmService.addLikeToFilm(film3.getId(), user2.getId());
+        filmService.addLikeToFilm(film3.getId(), user3.getId());
+
+        List<Film> topCommonFilms = filmService.getTopCommonFilms(user1.getId(), user2.getId());
+
+        assertNotNull(topCommonFilms);
+        assertEquals(2, topCommonFilms.size());
+        assertEquals(film3.getId(), topCommonFilms.get(0).getId());
+    }
+
+    @Test
+    public void shouldNotGetTopCommonsFilmsIfWrongIdentifiers() {
+        User user1 = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User user2 = User.builder()
+                .email("iliashacool@gmail.com")
+                .login("Maxim")
+                .name("Max228")
+                .birthday(LocalDate.of(2012, 12, 1))
+                .build();
+
+        User user3 = User.builder()
+                .email("test12@gmail.com")
+                .login("Anstasya")
+                .name("Milo23")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.createNewUser(user3);
+
+        Film film1 = Film.builder()
+                .name("Test1")
+                .description("TestDescription1")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Test2")
+                .description("TestDescription2")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film film3 = Film.builder()
+                .name("Test3")
+                .description("TestDescription3")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        filmService.createNewFilm(film1);
+        filmService.createNewFilm(film2);
+        filmService.createNewFilm(film3);
+
+        filmService.addLikeToFilm(film1.getId(), user1.getId());
+        filmService.addLikeToFilm(film1.getId(), user2.getId());
+
+        filmService.addLikeToFilm(film2.getId(), user1.getId());
+
+        filmService.addLikeToFilm(film3.getId(), user1.getId());
+        filmService.addLikeToFilm(film3.getId(), user2.getId());
+        filmService.addLikeToFilm(film3.getId(), user3.getId());
+
+        List<Film> topCommonFilms = filmService.getTopCommonFilms(9999, 100);
+
+        assertNotNull(topCommonFilms);
+        assertEquals(Collections.emptyList(), topCommonFilms);
     }
 }

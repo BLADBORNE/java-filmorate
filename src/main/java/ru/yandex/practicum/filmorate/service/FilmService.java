@@ -54,4 +54,8 @@ public class FilmService {
     public List<Film> getDirectorFilm(int directorId, String sortBy) {
         return filmStorage.getDirectorFilm(directorId, sortBy);
     }
+
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+        return filmStorage.getTopCommonFilms(userId1, userId2);
+    }
 }
