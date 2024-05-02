@@ -89,11 +89,8 @@ public class UserDao implements UserStorage {
         parameters.put("birthday", user.getBirthday());
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
-
-        user.setId(generatedId.intValue());
-
         log.info("Пользователь {} успешно создан", user.getName());
-        return getUserById(user.getId());
+        return getUserById(generatedId.intValue());
     }
 
     @Override
