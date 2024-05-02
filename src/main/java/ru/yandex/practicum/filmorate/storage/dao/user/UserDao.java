@@ -235,12 +235,13 @@ public class UserDao implements UserStorage {
                 rs.getInt("affected_entity_id"),
                 rs.getTimestamp("created_at", tzUTC).toInstant());
     }
+
     @Override
     public List<Integer> getLikedFilmsId(Integer userId) {
         log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
 
         String sql = "SELECT film_id FROM film_like WHERE user_id = ?";
 
-        return jdbcTemplate.queryForList(sql,Integer.class, userId);
+        return jdbcTemplate.queryForList(sql, Integer.class, userId);
     }
 }
