@@ -204,12 +204,20 @@ public class FilmDao implements FilmStorage {
 
         log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
 
-        String sql = "SELECT f.*\n" +
-                "FROM films AS f\n" +
-                "JOIN film_like fl1 ON f.film_id = fl1.film_id AND fl1.user_id = ? \n" +
-                "JOIN film_like fl2  ON f.film_id = fl2.film_id AND fl2.user_id = ? \n" +
-                "GROUP BY f.film_id\n" +
-                "ORDER BY (SELECT COUNT(user_id) FROM film_like WHERE f.film_id = film_id) DESC;";
+        String sql = "SELECT f.* \n" +
+                "FROM films f \n" +
+                "WHERE f.film_id IN (\n" +
+                "    SELECT film_id \n" +
+                "    FROM film_like\n" +
+                "    WHERE user_id IN (?, ?) \n" +
+                "    GROUP BY film_id \n" +
+                "    HAVING COUNT(film_id) > 1\n" +
+                ") \n" +
+                "ORDER BY (\n" +
+                "    SELECT COUNT(*) \n" +
+                "    FROM film_like \n" +
+                "    WHERE f.film_id = film_id\n" +
+                ") DESC;";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId1, userId2);
     }
