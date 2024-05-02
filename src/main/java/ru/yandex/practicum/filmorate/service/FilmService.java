@@ -62,4 +62,8 @@ public class FilmService {
     public List<Film> getTopCommonFilms(int userId1, int userId2) {
         return filmStorage.getTopCommonFilms(userId1, userId2);
     }
+
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+        return filmStorage.getTopCommonFilms(userId1, userId2);
+    }
 }
