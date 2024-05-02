@@ -492,9 +492,9 @@ public class FilmDbStorageTest {
                 .birthday(LocalDate.of(2008, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
-        userService.createNewUser(user3);
+        User createdUser1 = userService.createNewUser(user1);
+        User createdUser2 = userService.createNewUser(user2);
+        User createdUser3 = userService.createNewUser(user3);
 
         Film film1 = Film.builder()
                 .name("Test1")
@@ -523,24 +523,24 @@ public class FilmDbStorageTest {
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
                 .build();
 
-        filmService.createNewFilm(film1);
-        filmService.createNewFilm(film2);
-        filmService.createNewFilm(film3);
+        Film createdFilm1 = filmService.createNewFilm(film1);
+        Film createdFilm2 = filmService.createNewFilm(film2);
+        Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addLikeToFilm(film1.getId(), user1.getId());
-        filmService.addLikeToFilm(film1.getId(), user2.getId());
+        filmService.addLikeToFilm(createdFilm1.getId(), createdUser1.getId());
+        filmService.addLikeToFilm(createdFilm1.getId(), createdUser2.getId());
 
-        filmService.addLikeToFilm(film2.getId(), user1.getId());
+        filmService.addLikeToFilm(createdFilm2.getId(), createdUser1.getId());
 
-        filmService.addLikeToFilm(film3.getId(), user1.getId());
-        filmService.addLikeToFilm(film3.getId(), user2.getId());
-        filmService.addLikeToFilm(film3.getId(), user3.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser1.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser2.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser3.getId());
 
-        List<Film> topCommonFilms = filmService.getTopCommonFilms(user1.getId(), user2.getId());
+        List<Film> topCommonFilms = filmService.getTopCommonFilms(createdUser1.getId(), createdUser2.getId());
 
         assertNotNull(topCommonFilms);
         assertEquals(2, topCommonFilms.size());
-        assertEquals(film3.getId(), topCommonFilms.get(0).getId());
+        assertEquals(createdFilm3.getId(), topCommonFilms.get(0).getId());
     }
 
     @Test
@@ -566,9 +566,9 @@ public class FilmDbStorageTest {
                 .birthday(LocalDate.of(2008, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
-        userService.createNewUser(user3);
+        User createdUser1 = userService.createNewUser(user1);
+        User createdUser2 = userService.createNewUser(user2);
+        User createdUser3 = userService.createNewUser(user3);
 
         Film film1 = Film.builder()
                 .name("Test1")
@@ -597,18 +597,18 @@ public class FilmDbStorageTest {
                 .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
                 .build();
 
-        filmService.createNewFilm(film1);
-        filmService.createNewFilm(film2);
-        filmService.createNewFilm(film3);
+        Film createdFilm1 = filmService.createNewFilm(film1);
+        Film createdFilm2 = filmService.createNewFilm(film2);
+        Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addLikeToFilm(film1.getId(), user1.getId());
-        filmService.addLikeToFilm(film1.getId(), user2.getId());
+        filmService.addLikeToFilm(createdFilm1.getId(), createdUser1.getId());
+        filmService.addLikeToFilm(createdFilm1.getId(), createdUser2.getId());
 
-        filmService.addLikeToFilm(film2.getId(), user1.getId());
+        filmService.addLikeToFilm(createdFilm2.getId(), createdUser1.getId());
 
-        filmService.addLikeToFilm(film3.getId(), user1.getId());
-        filmService.addLikeToFilm(film3.getId(), user2.getId());
-        filmService.addLikeToFilm(film3.getId(), user3.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser1.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser2.getId());
+        filmService.addLikeToFilm(createdFilm3.getId(), createdUser3.getId());
 
         List<Film> topCommonFilms = filmService.getTopCommonFilms(9999, 100);
 
