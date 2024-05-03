@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.getAddLike;
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteLike;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -161,6 +164,7 @@ public class FilmDao implements FilmStorage {
         jdbcTemplate.update("INSERT INTO film_like (film_id, user_id) VALUES (?, ?)", filmId, userId);
 
         log.info(String.format("Пользователь %s успешно поставил лайк фильму %s", user.getName(), film.getName()));
+        userStorage.registerUserEvent(getAddLike(userId, filmId));
     }
 
     @Override
@@ -174,6 +178,7 @@ public class FilmDao implements FilmStorage {
         jdbcTemplate.update("DELETE FROM film_like WHERE film_id = ? AND user_id = ?", filmId, userId);
 
         log.info(String.format("Пользователь %s успешно удалил лайк фильму %s", user.getName(), film.getName()));
+        userStorage.registerUserEvent(getDeleteLike(userId, filmId));
     }
 
     @Override

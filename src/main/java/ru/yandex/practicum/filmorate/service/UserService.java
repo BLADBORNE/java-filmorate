@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import java.util.List;
@@ -48,5 +49,9 @@ public class UserService {
 
     public List<User> getCommonFriends(int userId, int otherId) {
         return userStorage.getCommonFriends(userId, otherId);
+    }
+
+    public List<UserEvent> getUserFeed(int userId) {
+        return userStorage.getUserFeed(userId);
     }
 }
