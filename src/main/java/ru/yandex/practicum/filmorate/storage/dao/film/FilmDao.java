@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import static ru.yandex.practicum.filmorate.service.UserEventFactory.getAddLike;
 import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteLike;
-import java.util.*;
 
 @Component
 @Slf4j
