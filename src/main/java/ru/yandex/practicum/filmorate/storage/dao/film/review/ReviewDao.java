@@ -110,7 +110,7 @@ public class ReviewDao implements ReviewStorage {
     public List<Review> getFilmsReviews(int id, int count) {
         log.info("Получен запрос на отправку всех отзывов фильму с id = {}", id);
 
-        int limit = count != 0 ? count : 10;
+        int limit = count >= 1 ? count : 10;
         StringBuilder sqlBuilder = new StringBuilder();
 
         sqlBuilder.append("SELECT r.*\n")

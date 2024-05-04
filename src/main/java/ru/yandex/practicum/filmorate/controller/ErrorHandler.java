@@ -15,45 +15,16 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice()
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler({AlreadyExistException.class, DateValidationException.class, IllegalArgumentException.class,
+            MethodArgumentTypeMismatchException.class, DataIntegrityViolationException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Какое-то из полей объекта не прошло проверку");
+    public ErrorResponse handleException(final Exception e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNoSuchElementException(final NoSuchElementException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e) {
-        return new ErrorResponse("Был передан некорректный ID. ID должен быть числом");
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
-        return new ErrorResponse("Дата фильма должна быть не меньше 1895-12-28");
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDateValidationException(final DateValidationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAlreadyExistException(final AlreadyExistException e) {
         return new ErrorResponse(e.getMessage());
     }
 
