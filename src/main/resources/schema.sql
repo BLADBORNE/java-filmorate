@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS
-    genres, users, ratings, films, user_friend, film_genre, film_like, reviews, director, film_director;
+    genres, users, ratings, films, user_friend, film_genre, film_like, reviews, director, film_director, review_like;
 
 CREATE TABLE IF NOT EXISTS ratings
 (
@@ -61,7 +61,15 @@ CREATE TABLE reviews
     user_id     INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_positive BOOLEAN NOT NULL,
     content     TEXT    NOT NULL CHECK (content <> ''),
-    useful      INTEGER NOT NULL CHECK (useful >= 1 AND useful <= 100)
+    useful      INTEGER
+);
+
+CREATE TABLE review_like
+(
+    review_id   INTEGER NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    is_positive BOOLEAN NOT NULL,
+    PRIMARY KEY (review_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS director

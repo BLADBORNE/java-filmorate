@@ -254,7 +254,7 @@ public class FilmDao implements FilmStorage {
         getFilmById(id);
 
         String sql = "\n" +
-                "SELECT *\n" +
+                "SELECT u.*\n" +
                 "FROM users AS u\n" +
                 "WHERE u.user_id IN\n" +
                 "    (SELECT user_id\n" +
