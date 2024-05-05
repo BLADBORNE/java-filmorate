@@ -306,9 +306,9 @@ public class FilmDao implements FilmStorage {
                         "ORDER BY COUNT(l.user_id) DESC;";
                 return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
             default:
-                NoSuchElementException e = new NoSuchElementException("Параметр запроса не найден");
-                log.error(by, e);
-                throw e;
+                String errorMessage = String.format("Параметр сортрировки {} для поиска не найден", by);
+                log.error(errorMessage);
+                throw new NoSuchElementException(errorMessage);
         }
     }
 
