@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.user;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class DbUserStorageTest {
         User savedUser = userService.getUserById(1);
 
         assertNotNull(savedUser);
-        assertEquals(1,userService.getUsers().size());
+        assertEquals(1, userService.getUsers().size());
         assertTrue(userService.getUsers().contains(savedUser));
     }
 
@@ -52,21 +52,21 @@ public class DbUserStorageTest {
                 .birthday(LocalDate.of(2024, 3, 4))
                 .build();
 
-        userService.createNewUser(newUser);
+        User createdUser = userService.createNewUser(newUser);
 
-        User savedUser = userService.getUserById(1);
+        User savedUser = userService.getUserById(createdUser.getId());
 
         assertNotNull(savedUser);
-        assertEquals(1,userService.getUsers().size());
+        assertEquals(1, userService.getUsers().size());
         assertTrue(userService.getUsers().contains(savedUser));
 
-        newUser.setName("UpdateName");
-        newUser.setLogin("New");
+        createdUser.setName("UpdateName");
+        createdUser.setLogin("New");
 
-        userService.updateUser(newUser);
+        userService.updateUser(createdUser);
 
-        assertEquals(1,userService.getUsers().size());
-        assertTrue(userService.getUsers().contains(newUser));
+        assertEquals(1, userService.getUsers().size());
+        assertTrue(userService.getUsers().contains(createdUser));
         assertFalse(userService.getUsers().contains(savedUser));
     }
 
@@ -84,12 +84,12 @@ public class DbUserStorageTest {
         User savedUser = userService.getUserById(1);
 
         assertNotNull(savedUser);
-        assertEquals(1,userService.getUsers().size());
+        assertEquals(1, userService.getUsers().size());
         assertTrue(userService.getUsers().contains(savedUser));
 
         userService.deleteUserById(savedUser.getId());
 
-        assertEquals(0,userService.getUsers().size());
+        assertEquals(0, userService.getUsers().size());
         assertFalse(userService.getUsers().contains(savedUser));
     }
 
@@ -109,17 +109,17 @@ public class DbUserStorageTest {
                 .birthday(LocalDate.of(2012, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
+        User createdUser1 = userService.createNewUser(user1);
+        User createdUser2 = userService.createNewUser(user2);
 
         assertEquals(2, userService.getUsers().size());
-        assertTrue(userService.getUsers().contains(user1));
-        assertTrue(userService.getUsers().contains(user2));
+        assertTrue(userService.getUsers().contains(createdUser1));
+        assertTrue(userService.getUsers().contains(createdUser2));
 
-        userService.addFriend(user1.getId(), user2.getId());
+        userService.addFriend(createdUser1.getId(), createdUser2.getId());
 
-        assertTrue(userService.getUsersFriends(user1.getId()).contains(user2));
-        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
+        assertTrue(userService.getUsersFriends(createdUser1.getId()).contains(createdUser2));
+        assertFalse(userService.getUsersFriends(createdUser2.getId()).contains(createdUser1));
     }
 
     @Test
@@ -138,22 +138,22 @@ public class DbUserStorageTest {
                 .birthday(LocalDate.of(2012, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
+        User createdUser1 = userService.createNewUser(user1);
+        User createdUser2 = userService.createNewUser(user2);
 
-        userService.addFriend(user1.getId(), user2.getId());
+        userService.addFriend(createdUser1.getId(), createdUser2.getId());
 
-        assertTrue(userService.getUsersFriends(user1.getId()).contains(user2));
-        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
+        assertTrue(userService.getUsersFriends(createdUser1.getId()).contains(createdUser2));
+        assertFalse(userService.getUsersFriends(createdUser2.getId()).contains(createdUser1));
         assertEquals(2, userService.getUsers().size());
 
-        userService.deleteFriend(user1.getId(), user2.getId());
+        userService.deleteFriend(createdUser1.getId(), createdUser2.getId());
 
-        assertTrue(userService.getUsers().contains(user1));
-        assertTrue(userService.getUsers().contains(user2));
+        assertTrue(userService.getUsers().contains(createdUser1));
+        assertTrue(userService.getUsers().contains(createdUser2));
 
-        assertFalse(userService.getUsersFriends(user1.getId()).contains(user2));
-        assertFalse(userService.getUsersFriends(user2.getId()).contains(user1));
+        assertFalse(userService.getUsersFriends(createdUser1.getId()).contains(createdUser2));
+        assertFalse(userService.getUsersFriends(createdUser2.getId()).contains(createdUser1));
     }
 
     @Test
@@ -179,19 +179,19 @@ public class DbUserStorageTest {
                 .birthday(LocalDate.of(2008, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
-        userService.createNewUser(user3);
+        User created1 = userService.createNewUser(user1);
+        User created2 = userService.createNewUser(user2);
+        User created3 = userService.createNewUser(user3);
 
-        userService.addFriend(user1.getId(), user2.getId());
-        userService.addFriend(user1.getId(), user3.getId());
+        userService.addFriend(created1.getId(), created2.getId());
+        userService.addFriend(created1.getId(), created3.getId());
 
-        List<User> userFriends = userService.getUsersFriends(user1.getId());
+        List<User> userFriends = userService.getUsersFriends(created1.getId());
 
         assertNotNull(userFriends);
         assertEquals(2, userFriends.size());
-        assertTrue(userFriends.contains(user2));
-        assertTrue(userFriends.contains(user3));
+        assertTrue(userFriends.contains(created2));
+        assertTrue(userFriends.contains(created3));
     }
 
     @Test
@@ -217,18 +217,18 @@ public class DbUserStorageTest {
                 .birthday(LocalDate.of(2008, 12, 1))
                 .build();
 
-        userService.createNewUser(user1);
-        userService.createNewUser(user2);
-        userService.createNewUser(user3);
+        User created1 = userService.createNewUser(user1);
+        User created2 = userService.createNewUser(user2);
+        User created3 = userService.createNewUser(user3);
 
-        userService.addFriend(user1.getId(), user3.getId());
-        userService.addFriend(user2.getId(), user3.getId());
+        userService.addFriend(created1.getId(), created3.getId());
+        userService.addFriend(created2.getId(), created3.getId());
 
-        List<User> commonUserFriends = userService.getCommonFriends(user1.getId(), user2.getId());
+        List<User> commonUserFriends = userService.getCommonFriends(created1.getId(), created2.getId());
 
         assertNotNull(commonUserFriends);
         assertEquals(1, commonUserFriends.size());
-        assertTrue(commonUserFriends.contains(user3));
+        assertTrue(commonUserFriends.contains(created3));
     }
 
     @Test

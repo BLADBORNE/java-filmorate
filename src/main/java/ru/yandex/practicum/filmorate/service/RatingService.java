@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Rating;
-import ru.yandex.practicum.filmorate.storage.dao.rating.RatingStorage;
+import ru.yandex.practicum.filmorate.storage.dao.film.rating.RatingStorage;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.dao.rating;
+package ru.yandex.practicum.filmorate.storage.dao.film.rating;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

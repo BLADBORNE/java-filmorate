@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.film;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,7 +43,7 @@ public class FilmValidateTest {
         DateValidationException exception = assertThrows(DateValidationException.class, () ->
                 filmController.createNewFilm(film));
 
-        assertEquals("Дата фильма должна быть не менше 1895-12-28", exception.getMessage());
+        assertEquals("Дата фильма должна быть не меньше 1895-12-28", exception.getMessage());
     }
 
     @Test

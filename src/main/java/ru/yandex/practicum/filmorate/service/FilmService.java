@@ -35,8 +35,8 @@ public class FilmService {
         return filmStorage.deleteFilmById(id);
     }
 
-    public List<Film> getTopFilmsByLikes(int count) {
-        return filmStorage.getTopFilmsByLikes(count);
+    public List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year) {
+        return filmStorage.getTopFilmsByLikes(count, genreId, year);
     }
 
     public void addLikeToFilm(int filmId, int userId) {
@@ -49,5 +49,17 @@ public class FilmService {
 
     public List<User> getFilmLikes(int id) {
         return filmStorage.getFilmLikes(id);
+    }
+
+    public List<Film> getDirectorFilm(int directorId, String sortBy) {
+        return filmStorage.getDirectorFilm(directorId, sortBy);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by);
+    }
+
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+        return filmStorage.getTopCommonFilms(userId1, userId2);
     }
 }
