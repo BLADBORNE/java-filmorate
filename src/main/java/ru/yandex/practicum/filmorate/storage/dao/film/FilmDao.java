@@ -287,13 +287,10 @@ public class FilmDao implements FilmStorage {
 
         getFilmById(id);
 
-        String sql = "\n" +
-                "SELECT u.*\n" +
+        String sql = "SELECT u.*\n" +
                 "FROM users AS u\n" +
-                "WHERE u.user_id IN\n" +
-                "    (SELECT user_id\n" +
-                "     FROM film_like AS fl\n" +
-                "     WHERE fl.film_id = ?)";
+                "JOIN film_like AS fl ON u.user_id = fl.user_id\n" +
+                "WHERE fl.film_id = ?";
 
         log.info("Фильму с id = {} успешно отправлен всех лайков от людей", id);
 
