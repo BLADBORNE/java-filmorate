@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.rating.RatingStorage;
-import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import javax.validation.ValidationException;
@@ -191,6 +191,35 @@ public class FilmDao implements FilmStorage {
                 year));
 
         return jdbcTemplate.query(sql.toString(), params.toArray(), (rs, rowNum) -> makeFilm(rs));
+    }
+
+    @Override
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+
+        log.info(String.format("Получен запрос на получение общих фильмов для пользователей %s и %s",
+                userId1, userId2));
+
+        userStorage.getUserById(userId1);
+        userStorage.getUserById(userId2);
+
+        log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
+
+        String sql = "SELECT f.* \n" +
+                "FROM films f \n" +
+                "WHERE f.film_id IN (\n" +
+                "    SELECT film_id \n" +
+                "    FROM film_like\n" +
+                "    WHERE user_id IN (?, ?) \n" +
+                "    GROUP BY film_id \n" +
+                "    HAVING COUNT(film_id) > 1\n" +
+                ") \n" +
+                "ORDER BY (\n" +
+                "    SELECT COUNT(*) \n" +
+                "    FROM film_like \n" +
+                "    WHERE f.film_id = film_id\n" +
+                ") DESC;";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId1, userId2);
     }
 
     @Override

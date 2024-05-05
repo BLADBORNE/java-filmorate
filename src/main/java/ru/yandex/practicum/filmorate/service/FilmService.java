@@ -58,4 +58,8 @@ public class FilmService {
     public List<Film> searchFilms(String query, String by) {
         return filmStorage.searchFilms(query, by);
     }
+
+    public List<Film> getTopCommonFilms(int userId1, int userId2) {
+        return filmStorage.getTopCommonFilms(userId1, userId2);
+    }
 }
