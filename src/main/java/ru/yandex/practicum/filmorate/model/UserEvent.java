@@ -7,7 +7,6 @@ import java.time.Instant;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserEvent {
