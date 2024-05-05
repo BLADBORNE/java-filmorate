@@ -7,9 +7,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.service.UserEventFactory;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -226,4 +230,34 @@ public class DbUserStorageTest {
         assertEquals(1, commonUserFriends.size());
         assertTrue(commonUserFriends.contains(user3));
     }
+
+    @Test
+    public void shouldRegisterUserFriendRequest() {
+        User user1 = User.builder()
+                .email("test1@gmail.com")
+                .login("test1")
+                .name("test1")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+        User user2 = User.builder()
+                .email("test2@gmail.com")
+                .login("test2")
+                .name("test2")
+                .birthday(LocalDate.of(2008, 12, 1))
+                .build();
+        userService.createNewUser(user1);
+        userService.createNewUser(user2);
+        userService.addFriend(user1.getId(), user2.getId());
+
+        UserEvent event = userService.getUserFeed(user1.getId()).get(0);
+
+        assertEquals(user1.getId(), event.getUserId());
+        assertEquals(UserEvent.EventType.FRIEND, event.getEventType());
+        assertEquals(UserEvent.OperationType.ADD, event.getOperation());
+        assertEquals(user2.getId(), event.getEntityId());
+        assertTrue(event.getTimestamp().isBefore(Instant.now()));
+        assertTrue(event.getTimestamp().isAfter(Instant.now().minusSeconds(10)));
+
+    }
+
 }

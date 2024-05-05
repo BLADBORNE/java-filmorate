@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.*;
 
 import java.time.Instant;
@@ -23,6 +25,11 @@ public class UserEvent {
         this.operation = operation;
         this.entityId = entityId;
         this.timestamp = Instant.now();
+    }
+
+    @JsonGetter("timestamp")
+    public long getMyInstantValEpoch() {
+        return timestamp.toEpochMilli();
     }
 
     public enum EventType {
