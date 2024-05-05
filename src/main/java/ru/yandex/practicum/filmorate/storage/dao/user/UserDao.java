@@ -81,30 +81,42 @@ public class UserDao implements UserStorage {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("email", user.getEmail());
         parameters.put("login", user.getLogin());
-        parameters.put("name", user.getName());
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            parameters.put("name", user.getLogin());
+        } else {
+            parameters.put("name", user.getName());
+        }
+
         parameters.put("birthday", user.getBirthday());
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
-        user.setId(generatedId.intValue());
-
         log.info("Пользователь {} успешно создан", user.getName());
-        return user;
+
+        return getUserById(generatedId.intValue());
     }
 
     @Override
     public User updateUser(User user) {
+        String name;
         log.info("Получен запрос на обновление пользователя");
 
         getUserById(user.getId());
 
+        if (user.getName() == null || user.getName().isBlank()) {
+            name = user.getLogin();
+        } else {
+            name = user.getName();
+        }
+
         jdbcTemplate.update("UPDATE users SET email = ?, login = ?, name = ?," +
-                        "birthday = ? WHERE user_id = ?", user.getEmail(), user.getLogin(), user.getName(),
+                        "birthday = ? WHERE user_id = ?", user.getEmail(), user.getLogin(), name,
                 user.getBirthday(), user.getId());
 
         log.info("Пользователь с id = {} успешно обновлен", user.getId());
 
-        return user;
+        return getUserById(user.getId());
     }
 
     @Override
@@ -176,14 +188,19 @@ public class UserDao implements UserStorage {
         User user = getUserById(userId);
         User otherUser = getUserById(otherId);
 
-        List<User> userFriend = getUsersFriends(user.getId());
-        List<User> otherUserFriend = getUsersFriends(otherUser.getId());
-
-        userFriend.retainAll(otherUserFriend);
+        String sql = "\n" +
+                "SELECT u.*\n" +
+                "FROM users AS u\n" +
+                "WHERE u.user_id IN\n" +
+                "    (SELECT uf.recipients_id AS common_friend\n" +
+                "     FROM user_friend AS uf\n" +
+                "     WHERE uf.sender_id IN (?,?)\n" +
+                "     GROUP BY common_friend\n" +
+                "     HAVING COUNT(uf.sender_id) > 1)";
 
         log.info(String.format("Список общих друзей пользователей %s и %s успешно отправлен", user.getName(),
                 otherUser.getName()));
 
-        return userFriend;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, otherId);
     }
 }

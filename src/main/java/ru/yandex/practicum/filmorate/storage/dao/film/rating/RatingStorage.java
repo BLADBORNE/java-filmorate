@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.dao.rating;
+package ru.yandex.practicum.filmorate.storage.dao.film.rating;
 
 import ru.yandex.practicum.filmorate.model.Rating;
 
