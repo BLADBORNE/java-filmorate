@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -610,9 +611,9 @@ public class FilmDbStorageTest {
         filmService.addLikeToFilm(createdFilm3.getId(), createdUser2.getId());
         filmService.addLikeToFilm(createdFilm3.getId(), createdUser3.getId());
 
-        List<Film> topCommonFilms = filmService.getTopCommonFilms(9999, 100);
+        assertThrows(NoSuchElementException.class, () -> {
+            filmService.getTopCommonFilms(9999, 100);
+        });
 
-        assertNotNull(topCommonFilms);
-        assertEquals(Collections.emptyList(), topCommonFilms);
     }
 }
