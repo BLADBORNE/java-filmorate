@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.rating.RatingStorage;
-import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import javax.validation.ValidationException;
@@ -198,6 +198,9 @@ public class FilmDao implements FilmStorage {
 
         log.info(String.format("Получен запрос на получение общих фильмов для пользователей %s и %s",
                 userId1, userId2));
+
+        userStorage.getUserById(userId1);
+        userStorage.getUserById(userId2);
 
         log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
 
