@@ -27,4 +27,6 @@ public interface UserStorage {
     List<UserEvent> getUserFeed(int userId);
 
     void registerUserEvent(UserEvent event);
+
+    List<Integer> getLikedFilmsId(Integer userId);
 }
