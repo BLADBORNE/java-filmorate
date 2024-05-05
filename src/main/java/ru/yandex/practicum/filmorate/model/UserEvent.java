@@ -23,7 +23,6 @@ public class UserEvent {
         this.eventType = eventType;
         this.operation = operation;
         this.entityId = entityId;
-        this.timestamp = Instant.now();
     }
 
     @JsonGetter("timestamp")
