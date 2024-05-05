@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.*;
 
@@ -19,7 +18,7 @@ public class UserEvent {
     private int entityId;
     private Instant timestamp;
 
-    public UserEvent (int userId, EventType eventType, OperationType operation, int entityId) {
+    public UserEvent(int userId, EventType eventType, OperationType operation, int entityId) {
         this.userId = userId;
         this.eventType = eventType;
         this.operation = operation;

@@ -20,8 +20,8 @@ import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteFr
 @Component
 @Slf4j
 public class UserDao implements UserStorage {
-    private final JdbcTemplate jdbcTemplate;
     private static final Calendar tzUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public UserDao(JdbcTemplate jdbcTemplate) {
@@ -205,17 +205,14 @@ public class UserDao implements UserStorage {
 
     @Override
     public List<UserEvent> getUserFeed(int userId) {
+        getUserById(userId);
         log.info(String.format("Получение ленты событий для пользователя с id = %s", userId));
         String sqlQuery = "SELECT event_id, user_id, event_type, operation, affected_entity_id, created_at " +
                 "FROM user_events " +
                 "WHERE user_id = ?";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUserEvent(rs), userId);
-//                "WHERE user_id in (%s)";
-//        List<Integer> friendsIds = getUsersFriends(userId).stream().map(User::getId).collect(Collectors.toList());
-//        String idPlaceholders = String.join(",", Collections.nCopies(friendsIds.size(), "?"));
-//        return jdbcTemplate.query(String.format(sqlQuery, idPlaceholders),
-//                friendsIds.toArray(),
-//                (rs, rowNum) -> mapUserEvent(rs));
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapUserEvent(rs),
+                userId);
     }
 
     @Override
