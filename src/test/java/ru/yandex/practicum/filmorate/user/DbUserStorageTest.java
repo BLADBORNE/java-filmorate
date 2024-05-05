@@ -8,12 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.service.UserEventFactory;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
