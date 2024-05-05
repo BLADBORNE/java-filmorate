@@ -266,6 +266,52 @@ public class FilmDao implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
     }
 
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        log.info("Получен запрос = {} на поиск с фильтром по = {}", query, by);
+        String dbQuery = "%" + query + "%";
+
+        switch (by) {
+            case "title":
+                String sqlTitle =
+                        "SELECT f.* " +
+                        "FROM films AS f " +
+                        "LEFT JOIN film_like AS l ON f.film_id = l.film_id " +
+                        "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlTitle, (rs, rowNum) -> makeFilm(rs), dbQuery);
+            case "director":
+                String sqlDirector =
+                        "SELECT f.* " +
+                        "FROM films AS f " +
+                        "JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "JOIN director AS d ON fd.director_id = d.id " +
+                        "LEFT JOIN film_like AS l ON f.film_id = l.film_id " +
+                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlDirector, (rs, rowNum) -> makeFilm(rs), dbQuery);
+            case "director,title":
+            case "title,director":
+                String sqlDirectorOrTitle =
+                        "SELECT f.* " +
+                        "FROM films AS f " +
+                        "LEFT JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "LEFT JOIN director AS d ON fd.director_id = d.id " +
+                        "LEFT JOIN film_like AS l ON f.film_id = l.film_id " +
+                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
+                                "OR LOWER(f.name) LIKE LOWER(?) " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+                return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
+            default:
+                String errorMessage = String.format("Параметр сортрировки {} для поиска не найден", by);
+                log.error(errorMessage);
+                throw new NoSuchElementException(errorMessage);
+        }
+    }
+
     private User makeUser(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("user_id"),
