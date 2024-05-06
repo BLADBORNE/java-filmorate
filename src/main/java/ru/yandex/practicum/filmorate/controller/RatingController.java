@@ -22,7 +22,7 @@ public class RatingController {
     }
 
     @GetMapping("/{id}")
-    public Rating getRatingById(@PathVariable(value = "id") int id) {
+    public Rating getRatingById(@PathVariable(value = "id") Integer id) {
         return ratingService.getRatingById(id);
     }
 }
