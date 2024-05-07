@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao.user;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 
 import java.util.List;
 
@@ -22,4 +23,10 @@ public interface UserStorage {
     List<User> getUsersFriends(int userId);
 
     List<User> getCommonFriends(int userId, int otherId);
+
+    List<UserEvent> getUserFeed(int userId);
+
+    void registerUserEvent(UserEvent event);
+
+    List<Integer> getLikedFilmsId(Integer userId);
 }

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.*;
+
 @Component
 @AllArgsConstructor
 @Slf4j
@@ -51,6 +53,8 @@ public class ReviewDao implements ReviewStorage {
 
         log.info("Успешно создан отзыв фильму {} от пользователя {}", film.getName(), user.getName());
 
+        userStorage.registerUserEvent(getAddReviewEvent(user.getId(), generatedId.intValue()));
+
         return getReviewById(generatedId.intValue());
     }
 
@@ -59,13 +63,15 @@ public class ReviewDao implements ReviewStorage {
         log.info("Получен запрос на обновление отзыва фильму с id = {} от пользователя c id = {}",
                 review.getFilmId(), review.getUserId());
 
-        getReviewById(review.getReviewId());
+        Review reviewFromDb = getReviewById(review.getReviewId());
 
         jdbcTemplate.update("UPDATE reviews SET is_positive = ?, content = ? WHERE review_id = ?",
                 review.getIsPositive(), review.getContent(), review.getReviewId());
 
         log.info("Успешно обновлен отзыв у фильма {} от пользователя {}", filmStorage.getFilmById(review.getFilmId())
                 .getName(), userStorage.getUserById(review.getUserId()).getName());
+
+        userStorage.registerUserEvent(getUpdateReviewEvent(reviewFromDb.getUserId(), review.getReviewId()));
 
         return getReviewById(review.getReviewId());
     }
@@ -80,6 +86,8 @@ public class ReviewDao implements ReviewStorage {
 
         log.info("Успешно удален отзыв у фильма {} от пользовател {}", filmStorage.getFilmById(review.getFilmId()),
                 userStorage.getUserById(review.getUserId()));
+
+        userStorage.registerUserEvent(getDeleteReviewEvent(review.getUserId(), id));
 
     }
 

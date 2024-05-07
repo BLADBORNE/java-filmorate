@@ -23,7 +23,7 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film getFilmById(@PathVariable(value = "filmId") int id) {
+    public Film getFilmById(@PathVariable(value = "filmId") Integer id) {
         return service.getFilmById(id);
     }
 
@@ -36,17 +36,25 @@ public class FilmController {
         return service.getTopFilmsByLikes(count, genreId, year);
     }
 
+    @GetMapping("/common")
+    public List<Film> getTopCommonsFilms(
+            @RequestParam(value = "userId") Integer userId,
+            @RequestParam(value = "friendId") Integer friendId
+    ) {
+        return service.getTopCommonFilms(userId, friendId);
+    }
+
     @PutMapping("/{filmId}/like/{userId}")
     public void addLikeToFilm(
-            @PathVariable(value = "filmId") int filmId,
-            @PathVariable(value = "userId") int userId) {
+            @PathVariable(value = "filmId") Integer filmId,
+            @PathVariable(value = "userId") Integer userId) {
         service.addLikeToFilm(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLikeFromFilm(
-            @PathVariable(value = "filmId") int filmId,
-            @PathVariable(value = "userId") int userId) {
+            @PathVariable(value = "filmId") Integer filmId,
+            @PathVariable(value = "userId") Integer userId) {
         service.deleteLikeFromFilm(filmId, userId);
     }
 
@@ -71,7 +79,7 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public List<Film> getDirectorFilm(
-            @PathVariable(value = "directorId") int directorId,
+            @PathVariable(value = "directorId") Integer directorId,
             @RequestParam(value = "sortBy") String sortBy) {
         return service.getDirectorFilm(directorId, sortBy);
     }

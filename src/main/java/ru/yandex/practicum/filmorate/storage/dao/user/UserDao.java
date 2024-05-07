@@ -8,17 +8,19 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
+
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.getAddFriendEvent;
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteFriendEvent;
 
 @Component
 @Slf4j
 public class UserDao implements UserStorage {
+    private static final Calendar tzUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -148,6 +150,7 @@ public class UserDao implements UserStorage {
 
         log.info(String.format("%s попал в список друзей пользователя %s", user.getName(), friend.getName()));
         log.info(String.format("%s попал в список подписчиков пользователя %s", friend.getName(), user.getName()));
+        registerUserEvent(getAddFriendEvent(userId, friendId));
     }
 
     @Override
@@ -161,6 +164,7 @@ public class UserDao implements UserStorage {
         jdbcTemplate.update("DELETE FROM user_friend WHERE sender_id = ? AND recipients_id = ?", userId, friendId);
 
         log.info(String.format("Пользователи %s и %s больше не друзья", user.getName(), friend.getName()));
+        registerUserEvent(getDeleteFriendEvent(userId, friendId));
     }
 
     @Override
@@ -202,5 +206,47 @@ public class UserDao implements UserStorage {
                 otherUser.getName()));
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, otherId);
+    }
+
+    @Override
+    public List<UserEvent> getUserFeed(int userId) {
+        getUserById(userId);
+        log.info(String.format("Получение ленты событий для пользователя с id = %s", userId));
+        String sqlQuery = "SELECT event_id, user_id, event_type, operation, affected_entity_id, created_at " +
+                "FROM user_events " +
+                "WHERE user_id = ?";
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> mapUserEvent(rs),
+                userId);
+    }
+
+    @Override
+    public void registerUserEvent(UserEvent event) {
+        String sqlQuery = "INSERT INTO user_events (user_id, event_type, operation, affected_entity_id) " +
+                "VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
+                event.getUserId(),
+                event.getEventType().toString(),
+                event.getOperation().toString(),
+                event.getEntityId());
+        log.info("Событие записано");
+    }
+
+    private UserEvent mapUserEvent(ResultSet rs) throws SQLException {
+        return new UserEvent(rs.getInt("event_id"),
+                rs.getInt("user_id"),
+                UserEvent.EventType.valueOf(rs.getString("event_type")),
+                UserEvent.OperationType.valueOf(rs.getString("operation")),
+                rs.getInt("affected_entity_id"),
+                rs.getTimestamp("created_at", tzUTC).toInstant());
+    }
+
+    @Override
+    public List<Integer> getLikedFilmsId(Integer userId) {
+        log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
+
+        String sql = "SELECT film_id FROM film_like WHERE user_id = ?";
+
+        return jdbcTemplate.queryForList(sql, Integer.class, userId);
     }
 }
