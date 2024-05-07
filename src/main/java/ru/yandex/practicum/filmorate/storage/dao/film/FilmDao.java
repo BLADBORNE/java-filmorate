@@ -140,24 +140,24 @@ public class FilmDao implements FilmStorage {
         return deletedFilm;
     }
 
+//    @Override
+//    public List<Film> getTopFilmsByScores(int count) {
+//        log.info(String.format("Получен запрос на получении топ %s лучших фильмов", count));
+//
+//        log.info(String.format("Топ %s лучших фильмов отправлены клиенту", count));
+//
+//        String sql = "SELECT f.*\n" +
+//                "FROM films AS f\n" +
+//                "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id\n" +
+//                "GROUP BY f.film_id\n" +
+//                "ORDER BY COUNT(fl.user_id) DESC\n" +
+//                "LIMIT ?;";
+//
+//        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+//    }
+
     @Override
-    public List<Film> getTopFilmsByLikes(int count) {
-        log.info(String.format("Получен запрос на получении топ %s лучших фильмов", count));
-
-        log.info(String.format("Топ %s лучших фильмов отправлены клиенту", count));
-
-        String sql = "SELECT f.*\n" +
-                "FROM films AS f\n" +
-                "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id\n" +
-                "GROUP BY f.film_id\n" +
-                "ORDER BY COUNT(fl.user_id) DESC\n" +
-                "LIMIT ?;";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
-    }
-
-    @Override
-    public List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year) {
+    public List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year) {
         log.info(String.format("Получен запрос на получении топ %s лучших фильмов по жанрам = %s и годам = %s",
                 count,
                 genreId,
@@ -179,7 +179,7 @@ public class FilmDao implements FilmStorage {
             params.add(year);
         }
 
-        sql.append("GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id\n" +
+        sql.append("GROUP BY f.film_id\n" +
                 "ORDER BY COUNT(fl.user_id) DESC\n");
 
         if (count != null) {
@@ -226,7 +226,7 @@ public class FilmDao implements FilmStorage {
     }
 
     @Override
-    public void addLikeToFilm(int filmId, int userId) {
+    public void addScoreToFilm(int filmId, int userId) {
         log.info(String.format("Получен запрос на добавление лайка фильму с id = %s от пользователя  c id = %s",
                 filmId, userId));
 
@@ -240,7 +240,7 @@ public class FilmDao implements FilmStorage {
     }
 
     @Override
-    public void deleteLikeFromFilm(int filmId, int userId) {
+    public void deleteScoreFromFilm(int filmId, int userId) {
         log.info(String.format("Получен запрос на удаление лайка фильму с id = %s от пользователя c id = %s", filmId,
                 userId));
 
@@ -282,7 +282,7 @@ public class FilmDao implements FilmStorage {
     }
 
     @Override
-    public List<User> getFilmLikes(int id) {
+    public List<User> getFilmScores(int id) {
         log.info("Получен запрос на отправление всех лайков от людей фильму с id = {}", id);
 
         getFilmById(id);
