@@ -193,15 +193,12 @@ public class UserDao implements UserStorage {
         User user = getUserById(userId);
         User otherUser = getUserById(otherId);
 
-        String sql = "\n" +
-                "SELECT u.*\n" +
+        String sql = "SELECT u.*\n" +
                 "FROM users AS u\n" +
-                "WHERE u.user_id IN\n" +
-                "    (SELECT uf.recipients_id AS common_friend\n" +
-                "     FROM user_friend AS uf\n" +
-                "     WHERE uf.sender_id IN (?,?)\n" +
-                "     GROUP BY common_friend\n" +
-                "     HAVING COUNT(uf.sender_id) > 1)";
+                "JOIN user_friend AS uf ON u.user_id = uf.recipients_id\n" +
+                "WHERE uf.sender_id IN (?, ?)\n" +
+                "GROUP BY uf.recipients_id\n" +
+                "HAVING COUNT(uf.sender_id) > 1";
 
         log.info(String.format("Список общих друзей пользователей %s и %s успешно отправлен", user.getName(),
                 otherUser.getName()));

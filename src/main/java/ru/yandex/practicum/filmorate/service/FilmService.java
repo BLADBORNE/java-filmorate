@@ -47,8 +47,12 @@ public class FilmService {
         filmStorage.deleteScoreFromFilm(filmId, userId);
     }
 
-    public List<User> getFilmLikes(int id) {
-        return filmStorage.getFilmLikes(id);
+    public List<User> getUsersWhoScoredTheFilmById(int id) {
+        return filmStorage.getUsersWhoScoredTheFilmById(id);
+    }
+
+    public boolean getFilmScoreRecordByFilmIdUserIdAndScore(int filmId, int userId, int score) {
+        return filmStorage.getFilmScoreRecordByFilmIdUserIdAndScore(filmId, userId, score);
     }
 
     public List<Film> getDirectorFilm(int directorId, String sortBy) {

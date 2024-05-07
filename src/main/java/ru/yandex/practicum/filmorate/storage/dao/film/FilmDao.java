@@ -153,7 +153,7 @@ public class FilmDao implements FilmStorage {
 
         StringBuilder sql = new StringBuilder("SELECT f.*\n" +
                 "FROM films AS f\n" +
-                "LEFT JOIN film_score AS fs ON f.film_id = fl.film_id\n");
+                "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id\n");
 
         List<Integer> params = new ArrayList<>();
 
@@ -168,7 +168,7 @@ public class FilmDao implements FilmStorage {
         }
 
         sql.append("GROUP BY f.film_id\n" +
-                "ORDER BY AVG(fs.score) DESC\n");
+                "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC\n");
 
         if (count != null) {
             sql.append("LIMIT ?;");
@@ -194,20 +194,21 @@ public class FilmDao implements FilmStorage {
 
         log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
 
-        String sql = "SELECT f.* \n" +
-                "FROM films f \n" +
-                "WHERE f.film_id IN (\n" +
-                "    SELECT fs.film_id \n" +
-                "    FROM film_score AS fs\n" +
-                "    WHERE fs.user_id IN (?, ?) \n" +
-                "    GROUP BY fs.film_id \n" +
-                "    HAVING COUNT(fs.user_id) > 1\n" +
-                ") \n" +
-                "ORDER BY (\n" +
-                "    SELECT AVG(fs.score) \n" +
-                "    FROM film_score AS fs \n" +
-                "    WHERE f.film_id = fs.film_id\n" +
-                ") DESC;";
+        String sql = "SELECT f.*\n" +
+                "FROM films AS f\n" +
+                "JOIN film_score fs ON f.film_id = fs.film_id\n" +
+                "WHERE fs.user_id IN (?, ?)\n" +
+                "GROUP BY f.film_id\n" +
+                "HAVING COUNT(fs.user_id) > 1\n"+
+                "ORDER BY (" +
+                "SELECT COUNT(fs.user_id) " +
+                "FROM film_score AS fs " +
+                "WHERE f.film_id = fs.film_id" +
+                ") DESC, (" +
+                "SELECT AVG(fs.score) " +
+                "FROM film_score AS fs " +
+                "WHERE f.film_id = fs.film_id" +
+                ") DESC";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId1, userId2);
     }
@@ -291,7 +292,7 @@ public class FilmDao implements FilmStorage {
                         "LEFT JOIN film_score AS fs ON fs.film_id = f.film_id " +
                         "WHERE d.id = ? " +
                         "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC";
+                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
                 break;
             default:
                 throw new ValidationException("Неизвестный параметр сортировки sortBy=" + sortBy);
@@ -317,6 +318,28 @@ public class FilmDao implements FilmStorage {
     }
 
     @Override
+    public boolean getFilmScoreRecordByFilmIdUserIdAndScore(int filmId, int userId, int score) {
+        log.info("Получен запрос на отправку оценки фильма с id = {} от пользователя с id = {} и оценкой = {}", filmId,
+                userId, score);
+
+        getFilmById(filmId);
+        getFilmById(userId);
+
+        SqlRowSet scoreRows = jdbcTemplate.queryForRowSet("SELECT fs.* FROM film_score AS fs WHERE fs.film_id = ? " +
+                "AND fs.user_id = ? AND fs.score = ?", filmId, userId, score);
+
+        if (scoreRows.next()) {
+            log.info("Запись успешно найдена");
+
+            return true;
+        }
+
+        log.info("Запись не найдена");
+
+        return false;
+    }
+
+    @Override
     public List<Film> searchFilms(String query, String by) {
         log.info("Получен запрос = {} на поиск с фильтром по = {}", query, by);
 
@@ -329,7 +352,7 @@ public class FilmDao implements FilmStorage {
                         "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id " +
                         "WHERE LOWER(f.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC;";
+                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
 
                 return jdbcTemplate.query(sqlTitle, (rs, rowNum) -> makeFilm(rs), dbQuery);
             case "director":
@@ -340,7 +363,7 @@ public class FilmDao implements FilmStorage {
                         "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id " +
                         "WHERE LOWER(d.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC;";
+                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
 
                 return jdbcTemplate.query(sqlDirector, (rs, rowNum) -> makeFilm(rs), dbQuery);
             case "director,title":
@@ -353,7 +376,7 @@ public class FilmDao implements FilmStorage {
                         "WHERE LOWER(d.name) LIKE LOWER(?) " +
                         "OR LOWER(f.name) LIKE LOWER(?) " +
                         "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC;";
+                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
 
                 return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
             default:
@@ -385,6 +408,7 @@ public class FilmDao implements FilmStorage {
     private void checkScoreValidation(int userId, int score) {
         if (score <= 0 || score >= 11) {
             log.warn("Клиент с id = {} передал неправильную оценку: - {}", userId, score);
+
             throw new ScoreValidationException(String.format("Оценка должна быть в диапозоне: [1; 10], ваша оценка - " +
                     "%d", score));
         }

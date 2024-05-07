@@ -18,6 +18,8 @@ public interface FilmStorage {
 
     List<User> getUsersWhoScoredTheFilmById(int id);
 
+    boolean getFilmScoreRecordByFilmIdUserIdAndScore(int filmId, int userId, int score);
+
     List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year);
 
     List<Film> getTopCommonFilms(int userId1, int userId2);
