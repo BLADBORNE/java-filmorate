@@ -16,13 +16,13 @@ public interface FilmStorage {
 
     Film deleteFilmById(int id);
 
-    List<User> getFilmScores(int id);
+    List<User> getUsersWhoScoredTheFilmById(int id);
 
     List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year);
 
     List<Film> getTopCommonFilms(int userId1, int userId2);
 
-    void addScoreToFilm(int filmId, int userId);
+    void addScoreToFilm(int filmId, int userId, int score);
 
     void deleteScoreFromFilm(int filmId, int userId);
 
