@@ -149,6 +149,7 @@ public class UserDao implements UserStorage {
                 friend.getId(), user.getId(), FriendshipStatus.IN_SUBSCRIBERS.toString());
 
         log.info(String.format("%s попал в список друзей пользователя %s", user.getName(), friend.getName()));
+
         log.info(String.format("%s попал в список подписчиков пользователя %s", friend.getName(), user.getName()));
         registerUserEvent(getAddFriendEvent(userId, friendId));
     }
@@ -192,15 +193,12 @@ public class UserDao implements UserStorage {
         User user = getUserById(userId);
         User otherUser = getUserById(otherId);
 
-        String sql = "\n" +
-                "SELECT u.*\n" +
+        String sql = "SELECT u.*\n" +
                 "FROM users AS u\n" +
-                "WHERE u.user_id IN\n" +
-                "    (SELECT uf.recipients_id AS common_friend\n" +
-                "     FROM user_friend AS uf\n" +
-                "     WHERE uf.sender_id IN (?,?)\n" +
-                "     GROUP BY common_friend\n" +
-                "     HAVING COUNT(uf.sender_id) > 1)";
+                "JOIN user_friend AS uf ON u.user_id = uf.recipients_id\n" +
+                "WHERE uf.sender_id IN (?, ?)\n" +
+                "GROUP BY uf.recipients_id\n" +
+                "HAVING COUNT(uf.sender_id) > 1";
 
         log.info(String.format("Список общих друзей пользователей %s и %s успешно отправлен", user.getName(),
                 otherUser.getName()));
@@ -211,10 +209,13 @@ public class UserDao implements UserStorage {
     @Override
     public List<UserEvent> getUserFeed(int userId) {
         getUserById(userId);
+
         log.info(String.format("Получение ленты событий для пользователя с id = %s", userId));
+
         String sqlQuery = "SELECT event_id, user_id, event_type, operation, affected_entity_id, created_at " +
                 "FROM user_events " +
                 "WHERE user_id = ?";
+
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> mapUserEvent(rs),
                 userId);
@@ -224,11 +225,13 @@ public class UserDao implements UserStorage {
     public void registerUserEvent(UserEvent event) {
         String sqlQuery = "INSERT INTO user_events (user_id, event_type, operation, affected_entity_id) " +
                 "VALUES (?, ?, ?, ?)";
+
         jdbcTemplate.update(sqlQuery,
                 event.getUserId(),
                 event.getEventType().toString(),
                 event.getOperation().toString(),
                 event.getEntityId());
+
         log.info("Событие записано");
     }
 
@@ -245,7 +248,18 @@ public class UserDao implements UserStorage {
     public List<Integer> getLikedFilmsId(Integer userId) {
         log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
 
-        String sql = "SELECT film_id FROM film_like WHERE user_id = ?";
+        String sql = "SELECT fs.film_id FROM film_score AS fs WHERE fs.user_id = ? AND fs.score >= 6 ";
+
+        return jdbcTemplate.queryForList(sql, Integer.class, userId);
+    }
+
+    @Override
+    public List<Integer> getScoreVectorByUserId(Integer userId) {
+        log.info(String.format("Получен запрос на вектор оценок пользователя с id = %s", userId));
+
+        String sql = "SELECT COALESCE(fs.score, 0) AS score " +
+                "FROM films " +
+                "LEFT JOIN film_score AS fs ON films.film_id = fs.film_id AND fs.user_id = ?";
 
         return jdbcTemplate.queryForList(sql, Integer.class, userId);
     }

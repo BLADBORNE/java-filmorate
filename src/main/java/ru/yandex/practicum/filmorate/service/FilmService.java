@@ -35,20 +35,24 @@ public class FilmService {
         return filmStorage.deleteFilmById(id);
     }
 
-    public List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year) {
-        return filmStorage.getTopFilmsByLikes(count, genreId, year);
+    public List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year) {
+        return filmStorage.getTopFilmsByScores(count, genreId, year);
     }
 
-    public void addLikeToFilm(int filmId, int userId) {
-        filmStorage.addLikeToFilm(filmId, userId);
+    public void addScoreToFilm(int filmId, int userId, int score) {
+        filmStorage.addScoreToFilm(filmId, userId, score);
     }
 
-    public void deleteLikeFromFilm(int filmId, int userId) {
-        filmStorage.deleteLikeFromFilm(filmId, userId);
+    public void deleteScoreFromFilm(int filmId, int userId) {
+        filmStorage.deleteScoreFromFilm(filmId, userId);
     }
 
-    public List<User> getFilmLikes(int id) {
-        return filmStorage.getFilmLikes(id);
+    public List<User> getUsersWhoScoredTheFilmById(int id) {
+        return filmStorage.getUsersWhoScoredTheFilmById(id);
+    }
+
+    public boolean getFilmScoreRecordByFilmIdUserIdAndScore(int filmId, int userId, int score) {
+        return filmStorage.getFilmScoreRecordByFilmIdUserIdAndScore(filmId, userId, score);
     }
 
     public List<Film> getDirectorFilm(int directorId, String sortBy) {

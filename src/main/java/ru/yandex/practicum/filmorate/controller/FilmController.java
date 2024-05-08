@@ -28,12 +28,12 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getTopFilmsByLikes(
+    public List<Film> getTopFilmsByScores(
             @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
             @RequestParam(value = "genreId", required = false) Integer genreId,
             @RequestParam(value = "year", required = false) Integer year
     ) {
-        return service.getTopFilmsByLikes(count, genreId, year);
+        return service.getTopFilmsByScores(count, genreId, year);
     }
 
     @GetMapping("/common")
@@ -44,18 +44,25 @@ public class FilmController {
         return service.getTopCommonFilms(userId, friendId);
     }
 
-    @PutMapping("/{filmId}/like/{userId}")
-    public void addLikeToFilm(
+    @PutMapping("/{filmId}/score/{userId}")
+    public void addScoreToFilm(
             @PathVariable(value = "filmId") Integer filmId,
-            @PathVariable(value = "userId") Integer userId) {
-        service.addLikeToFilm(filmId, userId);
+            @PathVariable(value = "userId") Integer userId,
+            @RequestParam(value = "score") Integer score
+    ) {
+        if (score == null) {
+            throw new IllegalArgumentException("Оценка не может пуста, нужно передать число в диапозоне: [1; 10]");
+        }
+
+        service.addScoreToFilm(filmId, userId, score);
     }
 
-    @DeleteMapping("/{filmId}/like/{userId}")
-    public void deleteLikeFromFilm(
+    @DeleteMapping("/{filmId}/score/{userId}")
+    public void deleteScoreFromFilm(
             @PathVariable(value = "filmId") Integer filmId,
-            @PathVariable(value = "userId") Integer userId) {
-        service.deleteLikeFromFilm(filmId, userId);
+            @PathVariable(value = "userId") Integer userId
+    ) {
+        service.deleteScoreFromFilm(filmId, userId);
     }
 
     @PostMapping
