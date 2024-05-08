@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ScoreValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.DirectorService;
@@ -135,7 +136,7 @@ public class FilmDbStorageTest {
 
         Film createdFilm = filmService.createNewFilm(film);
 
-        filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), 6);
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 6);
 
         assertEquals(1, filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).size());
         assertTrue(filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).contains(createdUser));
@@ -164,7 +165,7 @@ public class FilmDbStorageTest {
 
         Film createdFilm = filmService.createNewFilm(film);
 
-        filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), 6);
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 6);
 
         assertEquals(1, filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).size());
         assertTrue(filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).contains(createdUser));
@@ -241,7 +242,7 @@ public class FilmDbStorageTest {
 
         filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 8);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),7);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 7);
         filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 8);
         filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 10);
 
@@ -311,14 +312,14 @@ public class FilmDbStorageTest {
         Film createdFilm3 = filmService.createNewFilm(film3);
 
         filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(), 10);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(),9);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser3.getId(),8);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(), 9);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser3.getId(), 8);
 
-        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(),6);
+        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 6);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),8);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(),8);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(),9);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 8);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 8);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 9);
 
         List<Film> topFilmsByLikes = filmService.getTopFilmsByScores(3, null, 1998);
 
@@ -385,14 +386,14 @@ public class FilmDbStorageTest {
         Film createdFilm2 = filmService.createNewFilm(film2);
         Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(),1);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(),10);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(), 1);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(), 10);
 
-        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(),5);
+        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 5);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),7);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(),9);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(),10);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 7);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 9);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 10);
 
         List<Film> topFilmsByLikes = filmService.getTopFilmsByScores(3, 2, null);
 
@@ -460,14 +461,14 @@ public class FilmDbStorageTest {
         Film createdFilm2 = filmService.createNewFilm(film2);
         Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(),2);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(),3);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(), 2);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(), 3);
 
-        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(),10);
+        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 10);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),4);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(),3);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(),2);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 4);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 3);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 2);
 
         List<Film> topFilmsByLikes = filmService.getTopFilmsByScores(3, 2, 1998);
 
@@ -534,14 +535,14 @@ public class FilmDbStorageTest {
         Film createdFilm2 = filmService.createNewFilm(film2);
         Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(),9);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(),10);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(), 9);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(), 10);
 
-        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(),6);
+        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 6);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),9);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(),8);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(),8);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 9);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 8);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 8);
 
         List<Film> topCommonFilms = filmService.getTopCommonFilms(createdUser1.getId(), createdUser2.getId());
 
@@ -608,14 +609,14 @@ public class FilmDbStorageTest {
         Film createdFilm2 = filmService.createNewFilm(film2);
         Film createdFilm3 = filmService.createNewFilm(film3);
 
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(),1);
-        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(),2);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser1.getId(), 1);
+        filmService.addScoreToFilm(createdFilm1.getId(), createdUser2.getId(), 2);
 
-        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(),3);
+        filmService.addScoreToFilm(createdFilm2.getId(), createdUser1.getId(), 3);
 
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(),4);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(),5);
-        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(),6);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser1.getId(), 4);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser2.getId(), 5);
+        filmService.addScoreToFilm(createdFilm3.getId(), createdUser3.getId(), 6);
 
         assertThrows(NoSuchElementException.class, () -> {
             filmService.getTopCommonFilms(9999, 100);
@@ -645,12 +646,78 @@ public class FilmDbStorageTest {
         Film createdFilm = filmService.createNewFilm(film);
 
         assertThrows(ScoreValidationException.class, () ->
-        filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), 0));
+                filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), 0));
 
         assertThrows(ScoreValidationException.class, () ->
                 filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), 11));
 
         assertThrows(ScoreValidationException.class, () ->
                 filmService.addScoreToFilm(createdUser.getId(), createdFilm.getId(), -1));
+    }
+
+    @Test
+    public void shouldUpdateUsersScoreTo10() {
+        User user = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User createdUser = userService.createNewUser(user);
+
+        Film film = Film.builder()
+                .name("Test")
+                .description("TestDescription")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film createdFilm = filmService.createNewFilm(film);
+
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 6);
+
+        assertEquals(1, filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).size());
+        assertTrue(filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).contains(createdUser));
+        assertTrue(filmService.getFilmScoreRecordByFilmIdUserIdAndScore(createdFilm.getId(), createdUser.getId(), 6));
+
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 10);
+
+        assertFalse(filmService.getFilmScoreRecordByFilmIdUserIdAndScore(createdFilm.getId(), createdUser.getId(), 6));
+        assertTrue(filmService.getFilmScoreRecordByFilmIdUserIdAndScore(createdFilm.getId(), createdUser.getId(), 10));
+    }
+
+    @Test
+    public void shouldThrownAnExceptionIfUserWantsTotUpdateTheScoreToTheCurrentScore() {
+        User user = User.builder()
+                .email("belyachok567811@gmail.com")
+                .login("Ilya")
+                .name("BLADBORNE")
+                .birthday(LocalDate.of(2024, 3, 4))
+                .build();
+
+        User createdUser = userService.createNewUser(user);
+
+        Film film = Film.builder()
+                .name("Test")
+                .description("TestDescription")
+                .releaseDate(LocalDate.of(1895, 12, 28))
+                .duration(200)
+                .mpa(new Rating(1, ratings.get(1)))
+                .genres(List.of(new Genre(1, genres.get(1)), new Genre(2, genres.get(2))))
+                .build();
+
+        Film createdFilm = filmService.createNewFilm(film);
+
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 6);
+
+        assertEquals(1, filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).size());
+        assertTrue(filmService.getUsersWhoScoredTheFilmById(createdFilm.getId()).contains(createdUser));
+        assertTrue(filmService.getFilmScoreRecordByFilmIdUserIdAndScore(createdFilm.getId(), createdUser.getId(), 6));
+
+        assertThrows(AlreadyExistException.class, () ->
+        filmService.addScoreToFilm(createdFilm.getId(), createdUser.getId(), 6));
     }
 }

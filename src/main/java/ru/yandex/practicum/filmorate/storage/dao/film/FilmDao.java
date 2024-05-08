@@ -232,8 +232,8 @@ public class FilmDao implements FilmStorage {
                 log.info("Пользователь {} успешно изменил оценку {} на {} фильму {}", user.getName(), curScore, score,
                         film.getName());
 
-                jdbcTemplate.update("UPDATE film_score SET score = ? WHERE film_id = ? AND user_id = ?",
-                        filmId, userId, score);
+                jdbcTemplate.update("UPDATE film_score SET score = ? WHERE film_id = ? AND user_id = ?", score,
+                        filmId, userId);
 
                 userStorage.registerUserEvent(getUpdateFilmScoreEvent(userId, filmId));
 
