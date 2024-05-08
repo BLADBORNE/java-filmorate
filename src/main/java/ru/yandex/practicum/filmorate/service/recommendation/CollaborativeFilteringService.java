@@ -17,6 +17,10 @@ public class CollaborativeFilteringService {
     private final FilmStorage filmStorage;
 
     public List<Film> getRecommendationByUsers(Integer userId) {
+        if (userStorage.getLikedFilmsId(userId).isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<Integer> userIds = getSortedUsersBySimilarity(userId);
         if (userIds.isEmpty()) {
 
@@ -56,41 +60,21 @@ public class CollaborativeFilteringService {
     }
 
     private double findHowSimilar(Integer userId1, Integer userId2) {
-        List<Film> films = filmStorage.getFilms();
-        List<Integer> user1Likes = userStorage.getLikedFilmsId(userId1);
-        List<Integer> user2Likes = userStorage.getLikedFilmsId(userId2);
+        List<Integer> user1Scores = userStorage.getScoreVectorByUserId(userId1);
+        List<Integer> user2Scores = userStorage.getScoreVectorByUserId(userId2);
 
-        double[] userVector = generateLikeVector(films, user1Likes);
-        double[] friendVector = generateLikeVector(films, user2Likes);
-
-        return findCosineSimiliraty(userVector, friendVector);
+        return findCosineSimiliraty(user1Scores, user2Scores);
     }
 
-    private double[] generateLikeVector(List<Film> allFilms, List<Integer> likedFilms) {
-        double[] likeVector = new double[allFilms.size()];
-
-        for (int i = 0; i < allFilms.size(); i++) {
-            int movieId = allFilms.get(i).getId();
-
-            if (likedFilms.contains(movieId)) {
-                likeVector[i] = 1;
-            } else {
-                likeVector[i] = 0;
-            }
-        }
-
-        return likeVector;
-    }
-
-    private double findCosineSimiliraty(double[] vectorA, double[] vectorB) {
+    private double findCosineSimiliraty(List<Integer> vectorA, List<Integer> vectorB) {
         double dotProduct = 0.0;
         double normA = 0.0;
         double normB = 0.0;
 
-        for (int i = 0; i < vectorA.length; i++) {
-            dotProduct += vectorA[i] * vectorB[i];
-            normA += Math.pow(vectorA[i], 2);
-            normB += Math.pow(vectorB[i], 2);
+        for (int i = 0; i < vectorA.size(); i++) {
+            dotProduct += vectorA.get(i) * vectorB.get(i);
+            normA += Math.pow(vectorA.get(i), 2);
+            normB += Math.pow(vectorB.get(i), 2);
         }
 
         normA = Math.sqrt(normA);

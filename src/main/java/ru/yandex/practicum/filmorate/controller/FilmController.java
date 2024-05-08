@@ -45,7 +45,7 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/score/{userId}")
-    public void addLikeToFilm(
+    public void addScoreToFilm(
             @PathVariable(value = "filmId") Integer filmId,
             @PathVariable(value = "userId") Integer userId,
             @RequestParam(value = "score") Integer score
@@ -58,7 +58,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}/score/{userId}")
-    public void deleteLikeFromFilm(
+    public void deleteScoreFromFilm(
             @PathVariable(value = "filmId") Integer filmId,
             @PathVariable(value = "userId") Integer userId
     ) {

@@ -29,4 +29,6 @@ public interface UserStorage {
     void registerUserEvent(UserEvent event);
 
     List<Integer> getLikedFilmsId(Integer userId);
+
+    List<Integer> getScoreVectorByUserId(Integer userId);
 }

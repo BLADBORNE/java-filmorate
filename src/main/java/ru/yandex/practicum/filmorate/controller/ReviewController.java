@@ -51,7 +51,7 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<Review> getTopFilmsByLikes(
+    public List<Review> getTopReviewsByLikes(
             @RequestParam(value = "filmId", defaultValue = "0", required = false) Integer filmId,
             @RequestParam(value = "count", defaultValue = "10", required = false) Integer count
     ) {
