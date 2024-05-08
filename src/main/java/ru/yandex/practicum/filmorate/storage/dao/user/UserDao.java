@@ -252,4 +252,15 @@ public class UserDao implements UserStorage {
 
         return jdbcTemplate.queryForList(sql, Integer.class, userId);
     }
+
+    @Override
+    public List<Integer> getScoreVectorByUserId(Integer userId) {
+        log.info(String.format("Получен запрос на вектор оценок пользователя с id = %s", userId));
+
+        String sql = "SELECT COALESCE(fs.score, 0) AS score " +
+        "FROM films " +
+        "LEFT JOIN film_score AS fs ON films.film_id = fs.film_id AND fs.user_id = ?";
+
+        return jdbcTemplate.queryForList(sql, Integer.class, userId);
+    }
 }

@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,17 +22,8 @@ public class RecommedationService {
 
     public List<Film> getRecommendation(Integer userId) {
         userStorage.getUserById(userId);
-        List<Film> likedFilms = userStorage.getLikedFilmsId(userId).stream()
-                .map(filmStorage::getFilmById).collect(Collectors.toList());
-        Set<Film> recommendations = new HashSet<>();
 
-        if (!likedFilms.isEmpty()) {
-            recommendations.addAll(collaborativeFilteringService.getRecommendationByUsers(userId));
-        }
-
-        if (likedFilms.isEmpty()) {
-            return Collections.emptyList();
-        }
+        List<Film> recommendations = collaborativeFilteringService.getRecommendationByUsers(userId);
 
         return recommendations.stream().distinct().collect(Collectors.toList());
     }

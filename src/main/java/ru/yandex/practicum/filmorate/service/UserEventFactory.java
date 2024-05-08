@@ -17,11 +17,11 @@ public class UserEventFactory {
     }
 
     public static UserEvent getAddFilmLikeEvent(int userId, int filmId) {
-        return new UserEvent(userId, UserEvent.EventType.LIKE, UserEvent.OperationType.ADD, filmId);
+        return new UserEvent(userId, UserEvent.EventType.SCORE, UserEvent.OperationType.ADD, filmId);
     }
 
     public static UserEvent getDeleteFilmLikeEvent(int userId, int filmId) {
-        return new UserEvent(userId, UserEvent.EventType.LIKE, UserEvent.OperationType.REMOVE, filmId);
+        return new UserEvent(userId, UserEvent.EventType.SCORE, UserEvent.OperationType.REMOVE, filmId);
     }
 
     public static UserEvent getAddReviewEvent(int userId, int reviewId) {
