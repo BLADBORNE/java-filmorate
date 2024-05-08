@@ -13,12 +13,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommedationService {
-    @Autowired
     private final CollaborativeFilteringService collaborativeFilteringService;
-    @Autowired
     private final UserStorage userStorage;
-    @Autowired
-    private final FilmStorage filmStorage;
 
     public List<Film> getRecommendation(Integer userId) {
         userStorage.getUserById(userId);
