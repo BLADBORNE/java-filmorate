@@ -16,11 +16,15 @@ public class UserEventFactory {
         return new UserEvent(userId, UserEvent.EventType.FRIEND, UserEvent.OperationType.REMOVE, friendId);
     }
 
-    public static UserEvent getAddFilmLikeEvent(int userId, int filmId) {
+    public static UserEvent getAddFilmScoreEvent(int userId, int filmId) {
         return new UserEvent(userId, UserEvent.EventType.SCORE, UserEvent.OperationType.ADD, filmId);
     }
 
-    public static UserEvent getDeleteFilmLikeEvent(int userId, int filmId) {
+    public static UserEvent getUpdateFilmScoreEvent(int userId, int filmId) {
+        return new UserEvent(userId, UserEvent.EventType.SCORE, UserEvent.OperationType.UPDATE, filmId);
+    }
+
+    public static UserEvent getDeleteFilmScoreEvent(int userId, int filmId) {
         return new UserEvent(userId, UserEvent.EventType.SCORE, UserEvent.OperationType.REMOVE, filmId);
     }
 

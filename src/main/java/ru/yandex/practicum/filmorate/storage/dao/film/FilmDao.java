@@ -22,8 +22,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
-import static ru.yandex.practicum.filmorate.service.UserEventFactory.getAddFilmLikeEvent;
-import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteFilmLikeEvent;
+import static ru.yandex.practicum.filmorate.service.UserEventFactory.*;
 
 @Component
 @Slf4j
@@ -199,7 +198,7 @@ public class FilmDao implements FilmStorage {
                 "JOIN film_score fs ON f.film_id = fs.film_id\n" +
                 "WHERE fs.user_id IN (?, ?)\n" +
                 "GROUP BY f.film_id\n" +
-                "HAVING COUNT(fs.user_id) > 1\n"+
+                "HAVING COUNT(fs.user_id) > 1\n" +
                 "ORDER BY (" +
                 "SELECT COUNT(fs.user_id) " +
                 "FROM film_score AS fs " +
@@ -236,6 +235,8 @@ public class FilmDao implements FilmStorage {
                 jdbcTemplate.update("UPDATE film_score SET score = ? WHERE film_id = ? AND user_id = ?",
                         filmId, userId, score);
 
+                userStorage.registerUserEvent(getUpdateFilmScoreEvent(userId, filmId));
+
                 return;
             }
 
@@ -251,7 +252,7 @@ public class FilmDao implements FilmStorage {
         log.info(String.format("Пользователь %s успешно поставил оценку %d фильму %s", user.getName(), score,
                 film.getName()));
 
-        userStorage.registerUserEvent(getAddFilmLikeEvent(userId, filmId));
+        userStorage.registerUserEvent(getAddFilmScoreEvent(userId, filmId));
     }
 
     @Override
@@ -266,7 +267,7 @@ public class FilmDao implements FilmStorage {
 
         log.info(String.format("Пользователь %s успешно удалил оценку фильму %s", user.getName(), film.getName()));
 
-        userStorage.registerUserEvent(getDeleteFilmLikeEvent(userId, filmId));
+        userStorage.registerUserEvent(getDeleteFilmScoreEvent(userId, filmId));
     }
 
     @Override
