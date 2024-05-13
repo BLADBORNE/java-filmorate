@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.yandex.practicum.filmorate.exception.ScoreValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -60,6 +61,13 @@ public class FilmController {
     ) {
         if (score == null) {
             throw new IllegalArgumentException("Оценка не может пуста, нужно передать число в диапозоне: [1; 10]");
+        }
+
+        if (score <= 0 || score >= 11) {
+            log.warn("Клиент с id = {} передал неправильную оценку: - {}", userId, score);
+
+            throw new ScoreValidationException(String.format("Оценка должна быть в диапозоне: [1; 10], ваша оценка - " +
+                    "%d", score));
         }
 
         service.addScoreToFilm(filmId, userId, score);

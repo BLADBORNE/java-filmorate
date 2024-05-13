@@ -217,8 +217,6 @@ public class FilmDao implements FilmStorage {
         log.info(String.format("Получен запрос на добавление оценки фильму с id = %s от пользователя  c id = %s",
                 filmId, userId));
 
-        checkScoreValidation(userId, score);
-
         Film film = getFilmById(filmId);
         User user = userStorage.getUserById(userId);
 
@@ -403,15 +401,6 @@ public class FilmDao implements FilmStorage {
             log.warn("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
 
             throw new DateValidationException("Дата фильма должна быть не меньше 1895-12-28");
-        }
-    }
-
-    private void checkScoreValidation(int userId, int score) {
-        if (score <= 0 || score >= 11) {
-            log.warn("Клиент с id = {} передал неправильную оценку: - {}", userId, score);
-
-            throw new ScoreValidationException(String.format("Оценка должна быть в диапозоне: [1; 10], ваша оценка - " +
-                    "%d", score));
         }
     }
 }
