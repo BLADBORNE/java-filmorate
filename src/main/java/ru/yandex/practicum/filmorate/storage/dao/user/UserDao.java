@@ -20,8 +20,9 @@ import static ru.yandex.practicum.filmorate.service.UserEventFactory.getDeleteFr
 @Component
 @Slf4j
 public class UserDao implements UserStorage {
-    private static final Calendar tzUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    private final Calendar tzUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     private final JdbcTemplate jdbcTemplate;
+    private final int GOOD_SCORE = 6;
 
     @Autowired
     public UserDao(JdbcTemplate jdbcTemplate) {
@@ -248,9 +249,9 @@ public class UserDao implements UserStorage {
     public List<Integer> getLikedFilmsId(Integer userId) {
         log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
 
-        String sql = "SELECT fs.film_id FROM film_score AS fs WHERE fs.user_id = ? AND fs.score >= 6 ";
+        String sql = "SELECT fs.film_id FROM film_score AS fs WHERE fs.user_id = ? AND fs.score >= ?";
 
-        return jdbcTemplate.queryForList(sql, Integer.class, userId);
+        return jdbcTemplate.queryForList(sql, Integer.class, userId, GOOD_SCORE);
     }
 
     @Override
