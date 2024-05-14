@@ -254,13 +254,21 @@ public class UserDao implements UserStorage {
     }
 
     @Override
-    public List<Integer> getScoreVectorByUserId(Integer userId) {
+    public Map<Integer, Integer> getScoreVectorByUserId(Integer userId) {
         log.info(String.format("Получен запрос на вектор оценок пользователя с id = %s", userId));
 
-        String sql = "SELECT COALESCE(fs.score, 0) AS score " +
+        String sql = "SELECT films.film_id, COALESCE(fs.score, 0) AS score " +
                 "FROM films " +
                 "LEFT JOIN film_score AS fs ON films.film_id = fs.film_id AND fs.user_id = ?";
 
-        return jdbcTemplate.queryForList(sql, Integer.class, userId);
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, userId);
+
+        Map<Integer, Integer> usersMap = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Integer id = (Integer) row.get("film_id");
+            Integer score = (Integer) row.get("score");
+            usersMap.put(id, score);
+        }
+        return usersMap;
     }
 }

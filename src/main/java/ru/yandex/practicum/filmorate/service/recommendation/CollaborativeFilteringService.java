@@ -1,13 +1,21 @@
 package ru.yandex.practicum.filmorate.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,9 +23,12 @@ import java.util.stream.Collectors;
 public class CollaborativeFilteringService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final Map<Pair, Double> similarityCache = new HashMap<>();
 
     public List<Film> getRecommendationByUsers(Integer userId) {
-        if (userStorage.getLikedFilmsId(userId).isEmpty()) {
+        List<Integer> userFilms = userStorage.getLikedFilmsId(userId);
+
+        if (userFilms.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -26,8 +37,6 @@ public class CollaborativeFilteringService {
 
             return Collections.emptyList();
         }
-
-        List<Integer> userFilms = userStorage.getLikedFilmsId(userId);
 
         Set<Integer> recommendationIds = new HashSet<>(userStorage.getLikedFilmsId(userIds.get(0)));
 
@@ -46,24 +55,45 @@ public class CollaborativeFilteringService {
         List<Integer> userIds = new ArrayList<>();
 
         for (User user : users) {
-            userIds.add(user.getId());
+            int otherUserId = user.getId();
+            double similarity = similarityCache.getOrDefault(new Pair(userId, otherUserId), -1.0);
+            if (similarity == -1.0) {
+                similarity = findHowSimilar(userId, otherUserId);
+                similarityCache.put(new Pair(userId, otherUserId), similarity);
+            }
+
+            if (similarity != 0) {
+                userIds.add(otherUserId);
+            }
         }
 
-        userIds.sort(Comparator.comparing(id -> findHowSimilar(userId, id)));
-
-        userIds.removeIf(id -> {
-            double similarity = findHowSimilar(userId, id);
-            return similarity == 0;
-        });
+        userIds.sort(Comparator.comparing(id -> similarityCache.get(new Pair(userId, id))));
 
         return userIds;
     }
 
-    private double findHowSimilar(Integer userId1, Integer userId2) {
-        List<Integer> user1Scores = userStorage.getScoreVectorByUserId(userId1);
-        List<Integer> user2Scores = userStorage.getScoreVectorByUserId(userId2);
+    private double findHowSimilar(Integer targetUser, Integer otherUser) {
+        Map<Integer, Integer> targetUserScores = userStorage.getScoreVectorByUserId(targetUser);
+        List<Integer> sortedKeysForTarget = new ArrayList<>(targetUserScores.keySet());
+        Collections.sort(sortedKeysForTarget);
+        List<Integer> sortedValuesForTarget = new ArrayList<>();
+        for (Integer key : sortedKeysForTarget) {
+            sortedValuesForTarget.add(targetUserScores.get(key));
+        }
 
-        return findCosineSimiliraty(user1Scores, user2Scores);
+        Map<Integer, Integer> otherUserScores = userStorage.getScoreVectorByUserId(otherUser);
+        List<Integer> sortedKeysForOtherUser = new ArrayList<>(otherUserScores.keySet());
+        Collections.sort(sortedKeysForOtherUser);
+        List<Integer> sortedValuesForOtherUser = new ArrayList<>();
+        for (Integer key : sortedKeysForOtherUser) {
+            sortedValuesForOtherUser.add(otherUserScores.get(key));
+        }
+
+        if (!sortedKeysForTarget.equals(sortedKeysForOtherUser)) {
+            return 0.0;
+        }
+
+        return findCosineSimiliraty(sortedValuesForTarget, sortedValuesForOtherUser);
     }
 
     private double findCosineSimiliraty(List<Integer> vectorA, List<Integer> vectorB) {
@@ -81,5 +111,11 @@ public class CollaborativeFilteringService {
         normB = Math.sqrt(normB);
 
         return dotProduct / (normA * normB);
+    }
+
+    @Value
+    private static class Pair {
+        int id;
+        int otherId;
     }
 }
