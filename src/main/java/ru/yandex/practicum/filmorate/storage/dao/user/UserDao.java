@@ -52,12 +52,12 @@ public class UserDao implements UserStorage {
 
     @Override
     public User getUserById(int id) {
-        log.info(String.format("Получен запрос на отправку пользователя с id = %s", id));
+        log.info("Получен запрос на отправку пользователя с id = {}", id);
 
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE user_id = ?", id);
 
         if (userRows.next()) {
-            log.info(String.format("Пользователь с id = %s успешно отправлен клиенту", id));
+            log.info("Пользователь с id = {} успешно отправлен клиенту", id);
 
             return new User(
                     userRows.getInt("user_id"),
@@ -68,7 +68,7 @@ public class UserDao implements UserStorage {
 
         }
 
-        log.warn(String.format("Отсутствует пользователь с id = %s", id));
+        log.warn("Отсутствует пользователь с id = {}", id);
 
         throw new NoSuchElementException(String.format("Пользователь с id = %s отсутствует", id));
     }
@@ -95,7 +95,7 @@ public class UserDao implements UserStorage {
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
-        log.info("Пользователь {} успешно создан", user.getName());
+        log.info("Пользователь c id = {} успешно создан", user.getId());
 
         return getUserById(generatedId.intValue());
     }
@@ -130,15 +130,15 @@ public class UserDao implements UserStorage {
 
         jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", id);
 
-        log.info("Пользователь {} был успешно удален", deletedUser.getName());
+        log.info("Пользователь с id = {} был успешно удален", deletedUser.getId());
 
         return deletedUser;
     }
 
     @Override
     public void addFriend(int userId, int friendId) {
-        log.info(String.format("Получен запрос на добавление в друзья. Пользователь с id = %s хочет добавить " +
-                "пользователя с id = %s", userId, friendId));
+        log.info("Получен запрос на добавление в друзья. Пользователь с id = {} хочет добавить пользователя с id = {}",
+                userId, friendId);
 
         User user = getUserById(userId);
         User friend = getUserById(friendId);
@@ -152,30 +152,32 @@ public class UserDao implements UserStorage {
         log.info(String.format("%s попал в список друзей пользователя %s", user.getName(), friend.getName()));
 
         log.info(String.format("%s попал в список подписчиков пользователя %s", friend.getName(), user.getName()));
+
         registerUserEvent(getAddFriendEvent(userId, friendId));
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
-        log.info(String.format("Получен запрос на удаление из друзей. Пользователь с id = %s хочет удалить друга " +
-                "с id = %s", userId, friendId));
+        log.info("Получен запрос на удаление из друзей. Пользователь с id = {} хочет удалить друга с id = {}", userId,
+                friendId);
 
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
+        getUserById(userId);
+        getUserById(friendId);
 
         jdbcTemplate.update("DELETE FROM user_friend WHERE sender_id = ? AND recipients_id = ?", userId, friendId);
 
-        log.info(String.format("Пользователи %s и %s больше не друзья", user.getName(), friend.getName()));
+        log.info("Пользователи c id = {} и с id = {} больше не друзья", userId, friendId);
+
         registerUserEvent(getDeleteFriendEvent(userId, friendId));
     }
 
     @Override
     public List<User> getUsersFriends(int userId) {
-        log.info(String.format("Получен запрос на отправку друзей пользователя с id = %s", userId));
+        log.info("Получен запрос на отправку друзей пользователя с id = {}", userId);
 
-        User user = getUserById(userId);
+        getUserById(userId);
 
-        log.info(String.format("Пользователю %s успешно отправлены его друзья", user.getName()));
+        log.info("Пользователю с id = {} успешно отправлены его друзья", userId);
 
         String sql = "SELECT *\n" +
                 "FROM users AS u\n" +
@@ -188,8 +190,7 @@ public class UserDao implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(int userId, int otherId) {
-        log.info(String.format("Получен запрос на отправку общих друзей пользователей с id = %s и с id = %s ", userId,
-                otherId));
+        log.info("Получен запрос на отправку общих друзей пользователей с id = {} и с id = {} ", userId, otherId);
 
         User user = getUserById(userId);
         User otherUser = getUserById(otherId);
@@ -201,8 +202,8 @@ public class UserDao implements UserStorage {
                 "GROUP BY uf.recipients_id\n" +
                 "HAVING COUNT(uf.sender_id) > 1";
 
-        log.info(String.format("Список общих друзей пользователей %s и %s успешно отправлен", user.getName(),
-                otherUser.getName()));
+        log.info("Список общих друзей пользователей с id = {} и с id = {} успешно отправлен", user.getId(),
+                otherUser.getId());
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, otherId);
     }
@@ -211,7 +212,7 @@ public class UserDao implements UserStorage {
     public List<UserEvent> getUserFeed(int userId) {
         getUserById(userId);
 
-        log.info(String.format("Получение ленты событий для пользователя с id = %s", userId));
+        log.info("Получение ленты событий для пользователя с id = {}", userId);
 
         String sqlQuery = "SELECT event_id, user_id, event_type, operation, affected_entity_id, created_at " +
                 "FROM user_events " +
@@ -247,7 +248,7 @@ public class UserDao implements UserStorage {
 
     @Override
     public List<Integer> getLikedFilmsId(Integer userId) {
-        log.info(String.format("Получен запрос на отправку фильмов понравившихся пользователю с id = %s", userId));
+        log.info("Получен запрос на отправку фильмов понравившихся пользователю с id = {}", userId);
 
         String sql = "SELECT fs.film_id FROM film_score AS fs WHERE fs.user_id = ? AND fs.score >= ?";
 
@@ -256,7 +257,7 @@ public class UserDao implements UserStorage {
 
     @Override
     public Map<Integer, Integer> getScoreVectorByUserId(Integer userId) {
-        log.info(String.format("Получен запрос на вектор оценок пользователя с id = %s", userId));
+        log.info("Получен запрос на вектор оценок пользователя с id = {}", userId);
 
         String sql = "SELECT films.film_id, COALESCE(fs.score, 0) AS score " +
                 "FROM films " +
