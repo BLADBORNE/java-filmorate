@@ -57,12 +57,12 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public Film getFilmById(int id) {
-        log.info(String.format("Получен запрос на отправку фильма с id = %s", id));
+        log.info("Получен запрос на отправку фильма с id = {}", id);
 
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM films WHERE film_id = ?", id);
 
         if (filmRows.next()) {
-            log.info(String.format("Фильм с id = %s успешно отправлен клиенту", id));
+            log.info("Фильм с id = {} успешно отправлен клиенту", id);
 
             return new Film(
                     filmRows.getInt("film_id"),
@@ -76,7 +76,7 @@ public class FilmDao implements FilmStorage {
                     filmRows.getDouble("ranking"));
         }
 
-        log.warn(String.format("Отсутствует фильм с id = %s", id));
+        log.warn("Отсутствует фильм с id = {}", id);
 
         throw new NoSuchElementException(String.format("Фильм с id = %s отсутствует", id));
     }
@@ -141,10 +141,7 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year) {
-        log.info(String.format("Получен запрос на получении топ %s лучших фильмов по жанрам = %s и годам = %s",
-                count,
-                genreId,
-                year));
+        log.info("Получен запрос на получении топ {} лучших фильмов по жанрам = {} и годам = {}", count, genreId, year);
 
         StringBuilder sql = new StringBuilder("SELECT f.*\n" +
                 "FROM films AS f\n" +
@@ -170,10 +167,7 @@ public class FilmDao implements FilmStorage {
             params.add(count);
         }
 
-        log.info(String.format("Топ %s лучших фильмов по жанрам = %s и годам = %s отправлены клиенту",
-                count,
-                genreId,
-                year));
+        log.info("Топ {} лучших фильмов по жанрам = {} и годам = {} отправлены клиенту", count, genreId, year);
 
         return jdbcTemplate.query(sql.toString(), params.toArray(), (rs, rowNum) -> makeFilm(rs));
     }
@@ -181,13 +175,12 @@ public class FilmDao implements FilmStorage {
     @Override
     public List<Film> getTopCommonFilms(int userId1, int userId2) {
 
-        log.info(String.format("Получен запрос на получение общих фильмов для пользователей %s и %s",
-                userId1, userId2));
+        log.info("Получен запрос на получение общих фильмов для пользователей {} и {}", userId1, userId2);
 
         userStorage.getUserById(userId1);
         userStorage.getUserById(userId2);
 
-        log.info(String.format("Общие фильмы для пользователей %s и %s отправлены клиенту", userId1, userId2));
+        log.info("Общие фильмы для пользователей {} и {} отправлены клиенту", userId1, userId2);
 
         String sql = "SELECT f.*\n" +
                 "FROM films AS f\n" +
@@ -210,11 +203,10 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public void addScoreToFilm(int filmId, int userId, int score) {
-        log.info(String.format("Получен запрос на добавление оценки фильму с id = %s от пользователя  c id = %s",
-                filmId, userId));
+        log.info("Получен запрос на добавление оценки фильму с id = {} от пользователя  c id = {}", filmId, userId);
 
-        Film film = getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
+        getFilmById(filmId);
+        userStorage.getUserById(userId);
 
         SqlRowSet currentFilmScore = jdbcTemplate.queryForRowSet("SELECT * FROM film_score AS fs WHERE " +
                 "fs.film_id = ? AND fs.user_id = ? ", filmId, userId);
@@ -223,8 +215,8 @@ public class FilmDao implements FilmStorage {
             int curScore = currentFilmScore.getInt("score");
 
             if (curScore != score) {
-                log.info("Пользователь {} успешно изменил оценку {} на {} фильму {}", user.getName(), curScore, score,
-                        film.getName());
+                log.info("Пользователь c id = {} успешно изменил оценку {} на {} фильму c id = {}", userId, curScore,
+                        score, filmId);
 
                 jdbcTemplate.update("UPDATE film_score SET score = ? WHERE film_id = ? AND user_id = ?", score,
                         filmId, userId);
@@ -247,8 +239,7 @@ public class FilmDao implements FilmStorage {
 
         jdbcTemplate.update("INSERT INTO film_score (film_id, user_id, score) VALUES (?, ?, ?)", filmId, userId, score);
 
-        log.info(String.format("Пользователь %s успешно поставил оценку %d фильму %s", user.getName(), score,
-                film.getName()));
+        log.info("Пользователь с id = {} успешно поставил оценку {} фильму c id = {}", userId, score, filmId);
 
         userStorage.registerUserEvent(getAddFilmScoreEvent(userId, filmId));
 
@@ -263,15 +254,14 @@ public class FilmDao implements FilmStorage {
 
     @Override
     public void deleteScoreFromFilm(int filmId, int userId) {
-        log.info(String.format("Получен запрос на удаление оценки фильму с id = %s от пользователя c id = %s", filmId,
-                userId));
+        log.info("Получен запрос на удаление оценки фильму с id = {} от пользователя c id = {}", filmId, userId);
 
-        Film film = getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
+        getFilmById(filmId);
+        userStorage.getUserById(userId);
 
         jdbcTemplate.update("DELETE FROM film_score WHERE film_id = ? AND user_id = ?", filmId, userId);
 
-        log.info(String.format("Пользователь %s успешно удалил оценку фильму %s", user.getName(), film.getName()));
+        log.info("Пользователь с id = {} успешно удалил оценку у фильма с id = {}", userId, filmId);
 
         userStorage.registerUserEvent(getDeleteFilmScoreEvent(userId, filmId));
 
