@@ -8,8 +8,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DateValidationException;
-import ru.yandex.practicum.filmorate.exception.ScoreValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SortingType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.genre.GenreStorage;
@@ -86,8 +86,6 @@ public class FilmDao implements FilmStorage {
     public Film createNewFilm(Film film) {
         log.info("Получен запрос на создание нового фильма");
 
-        checkDateValidation(film.getReleaseDate());
-
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
@@ -113,8 +111,6 @@ public class FilmDao implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         log.info("Получен запрос на обновление фильма");
-
-        checkDateValidation(film.getReleaseDate());
 
         getFilmById(film.getId());
 
@@ -238,11 +234,7 @@ public class FilmDao implements FilmStorage {
                 return;
             }
 
-            log.warn("Предупреждение: пользователь {} пытался поставить ту же оценку фильму {}", user.getName(),
-                    film.getName());
-
-            throw new AlreadyExistException(String.format("У вас уже стоит текущая оценка: %d, выберите другую для " +
-                    "успешной замены", score));
+            return;
         }
 
         jdbcTemplate.update("INSERT INTO film_score (film_id, user_id, score) VALUES (?, ?, ?)", filmId, userId, score);
@@ -343,48 +335,49 @@ public class FilmDao implements FilmStorage {
         log.info("Получен запрос = {} на поиск с фильтром по = {}", query, by);
 
         String dbQuery = "%" + query + "%";
+        boolean isSortedByTitleAndDirector = (by.split(",")[0].equals(SortingType.TITLE.toString()) && by
+                .split(",")[0].equals(SortingType.DIRECTOR.toString())) || (by.split(",")[0]
+                .equals(SortingType.DIRECTOR.toString()) && by.split(",")[0].equals(SortingType.TITLE.toString()));
 
-        switch (by) {
-            case "title":
-                String sqlTitle = "SELECT f.* " +
-                        "FROM films AS f " +
-                        "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id " +
-                        "WHERE LOWER(f.name) LIKE LOWER(?) " +
-                        "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT f.*\n")
+                .append("FROM films AS f\n")
+                .append("LEFT JOIN film_score AS fs ON f.film_id = fs.film_id\n");
 
-                return jdbcTemplate.query(sqlTitle, (rs, rowNum) -> makeFilm(rs), dbQuery);
-            case "director":
-                String sqlDirector = "SELECT f.* " +
-                        "FROM films AS f " +
-                        "JOIN film_director AS fd ON f.film_id = fd.film_id " +
-                        "JOIN director AS d ON fd.director_id = d.id " +
-                        "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id " +
-                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
-                        "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
+        if (by.equals(SortingType.TITLE.toString())) {
+            stringBuilder.append("WHERE LOWER(f.name) LIKE LOWER(?)\n")
+                    .append("GROUP BY f.film_id\n")
+                    .append("ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC\n");
 
-                return jdbcTemplate.query(sqlDirector, (rs, rowNum) -> makeFilm(rs), dbQuery);
-            case "director,title":
-            case "title,director":
-                String sqlDirectorOrTitle = "SELECT f.* " +
-                        "FROM films AS f " +
-                        "LEFT JOIN film_director AS fd ON f.film_id = fd.film_id " +
-                        "LEFT JOIN director AS d ON fd.director_id = d.id " +
-                        "LEFT JOIN film_score AS fs ON f.film_id = fs.film_id " +
-                        "WHERE LOWER(d.name) LIKE LOWER(?) " +
-                        "OR LOWER(f.name) LIKE LOWER(?) " +
-                        "GROUP BY f.film_id " +
-                        "ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC";
-
-                return jdbcTemplate.query(sqlDirectorOrTitle, (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
-            default:
-                String errorMessage = String.format("Параметр сортрировки {} для поиска не найден", by);
-
-                log.error(errorMessage);
-
-                throw new NoSuchElementException(errorMessage);
+            return jdbcTemplate.query(stringBuilder.toString(), (rs, rowNum) -> makeFilm(rs), dbQuery);
         }
+
+        if (by.equals(SortingType.DIRECTOR.toString())) {
+            stringBuilder.append("JOIN film_director AS fd ON f.film_id = fd.film_id\n")
+                    .append("JOIN director AS d ON fd.director_id = d.id\n")
+                    .append("WHERE LOWER(d.name) LIKE LOWER(?)\n")
+                    .append("GROUP BY f.film_id\n")
+                    .append("ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC\n");
+
+            return jdbcTemplate.query(stringBuilder.toString(), (rs, rowNum) -> makeFilm(rs), dbQuery);
+        }
+
+        if (isSortedByTitleAndDirector) {
+            stringBuilder.append("JOIN film_director AS fd ON f.film_id = fd.film_id\n")
+                    .append("JOIN director AS d ON fd.director_id = d.id\n")
+                    .append("WHERE LOWER(d.name) LIKE LOWER(?)\n")
+                    .append("OR LOWER(f.name) LIKE LOWER(?)\n")
+                    .append("GROUP BY f.film_id\n")
+                    .append("ORDER BY COUNT(fs.user_id) DESC, AVG(fs.score) DESC\n");
+
+            return jdbcTemplate.query(stringBuilder.toString(), (rs, rowNum) -> makeFilm(rs), dbQuery, dbQuery);
+        }
+
+        String errorMessage = String.format("Параметр сортрировки %s для поиска не найден", by);
+
+        log.error(errorMessage);
+
+        throw new NoSuchElementException(errorMessage);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
@@ -394,13 +387,5 @@ public class FilmDao implements FilmStorage {
                 rs.getString("login"),
                 rs.getString("name"),
                 rs.getDate("birthday").toLocalDate());
-    }
-
-    private void checkDateValidation(LocalDate date) {
-        if (date.isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
-
-            throw new DateValidationException("Дата фильма должна быть не меньше 1895-12-28");
-        }
     }
 }

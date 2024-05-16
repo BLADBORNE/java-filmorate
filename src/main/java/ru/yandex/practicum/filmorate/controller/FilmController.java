@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.exception.ScoreValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,11 +85,15 @@ public class FilmController {
 
     @PostMapping
     public Film createNewFilm(@Valid @RequestBody Film film) {
+        checkDateValidation(film.getReleaseDate());
+
         return service.createNewFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
+        checkDateValidation(film.getReleaseDate());
+
         return service.updateFilm(film);
     }
 
@@ -110,5 +116,13 @@ public class FilmController {
     @GetMapping("/search")
     public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
         return service.searchFilms(query, by);
+    }
+
+    private void checkDateValidation(LocalDate date) {
+        if (date.isBefore(LocalDate.of(1895, 12, 28))) {
+            log.warn("При создании фильма поле дата-релиза объекта Film не прошло валидацию");
+
+            throw new DateValidationException("Дата фильма должна быть не меньше 1895-12-28");
+        }
     }
 }

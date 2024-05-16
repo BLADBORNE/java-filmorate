@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
@@ -172,11 +171,7 @@ public class ReviewDao implements ReviewStorage {
                 return;
             }
 
-            log.warn("Предупреждение: Пользователь {} пытается проставить повторно лайк отзыву с id = {}",
-                    user.getName(), reviewId);
-
-            throw new AlreadyExistException(String.format("Пользователь не может повторно ставить лайк отзыву, " +
-                    "id клиента = %d", userId));
+            return;
         }
 
         jdbcTemplate.update("INSERT INTO review_like (review_id, user_id, is_positive) VALUES (?, ?, true)",
@@ -213,11 +208,7 @@ public class ReviewDao implements ReviewStorage {
                 return;
             }
 
-            log.warn("Предупреждение: Пользователь {} пытается проставить повторно дизлайк отзыву с id = {}",
-                    user.getName(), reviewId);
-
-            throw new AlreadyExistException(String.format("Пользователь не может повторно ставить дизлайк отзыву, " +
-                    "id клиента = %d", userId));
+            return;
         }
 
         jdbcTemplate.update("INSERT INTO review_like (review_id, user_id, is_positive) VALUES (?, ?, false)",
