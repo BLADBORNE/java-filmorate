@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserStorage {
     List<User> getUsers();
@@ -29,4 +30,6 @@ public interface UserStorage {
     void registerUserEvent(UserEvent event);
 
     List<Integer> getLikedFilmsId(Integer userId);
+
+    Map<Integer, Integer> getScoreVectorByUserId(Integer userId);
 }

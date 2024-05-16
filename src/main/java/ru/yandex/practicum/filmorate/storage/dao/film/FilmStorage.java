@@ -16,17 +16,17 @@ public interface FilmStorage {
 
     Film deleteFilmById(int id);
 
-    List<User> getFilmLikes(int id);
+    List<User> getUsersWhoScoredTheFilmById(int id);
 
-    List<Film> getTopFilmsByLikes(int count);
+    boolean getFilmScoreRecordByFilmIdUserIdAndScore(int filmId, int userId, int score);
 
-    List<Film> getTopFilmsByLikes(Integer count, Integer genreId, Integer year);
+    List<Film> getTopFilmsByScores(Integer count, Integer genreId, Integer year);
 
     List<Film> getTopCommonFilms(int userId1, int userId2);
 
-    void addLikeToFilm(int filmId, int userId);
+    void addScoreToFilm(int filmId, int userId, int score);
 
-    void deleteLikeFromFilm(int filmId, int userId);
+    void deleteScoreFromFilm(int filmId, int userId);
 
     List<Film> getDirectorFilm(int directorId, String sortBy);
 

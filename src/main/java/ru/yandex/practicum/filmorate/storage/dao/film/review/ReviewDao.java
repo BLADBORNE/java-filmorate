@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
@@ -51,7 +50,7 @@ public class ReviewDao implements ReviewStorage {
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
-        log.info("Успешно создан отзыв фильму {} от пользователя {}", film.getName(), user.getName());
+        log.info("Успешно создан отзыв фильму с id = {} от пользователя с id = {}", film.getId(), user.getId());
 
         userStorage.registerUserEvent(getAddReviewEvent(user.getId(), generatedId.intValue()));
 
@@ -64,12 +63,13 @@ public class ReviewDao implements ReviewStorage {
                 review.getFilmId(), review.getUserId());
 
         Review reviewFromDb = getReviewById(review.getReviewId());
+        Film film = filmStorage.getFilmById(review.getFilmId());
+        User user = userStorage.getUserById(review.getUserId());
 
         jdbcTemplate.update("UPDATE reviews SET is_positive = ?, content = ? WHERE review_id = ?",
                 review.getIsPositive(), review.getContent(), review.getReviewId());
 
-        log.info("Успешно обновлен отзыв у фильма {} от пользователя {}", filmStorage.getFilmById(review.getFilmId())
-                .getName(), userStorage.getUserById(review.getUserId()).getName());
+        log.info("Успешно обновлен отзыв у фильма с id = {} от пользователя с id = {}", film.getId(), user.getId());
 
         userStorage.registerUserEvent(getUpdateReviewEvent(reviewFromDb.getUserId(), review.getReviewId()));
 
@@ -81,14 +81,14 @@ public class ReviewDao implements ReviewStorage {
         log.info("Получен запрос на удаление отзыва с id = {}", id);
 
         Review review = getReviewById(id);
+        Film film = filmStorage.getFilmById(review.getFilmId());
+        User user = userStorage.getUserById(review.getUserId());
 
         jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", id);
 
-        log.info("Успешно удален отзыв у фильма {} от пользовател {}", filmStorage.getFilmById(review.getFilmId()),
-                userStorage.getUserById(review.getUserId()));
+        log.info("Успешно удален отзыв у фильма с id = {} от пользовател c id = {}", film.getId(), user.getId());
 
         userStorage.registerUserEvent(getDeleteReviewEvent(review.getUserId(), id));
-
     }
 
     @Override
@@ -138,7 +138,7 @@ public class ReviewDao implements ReviewStorage {
         String sql = sqlBuilder.toString();
 
         if (id != 0) {
-            log.info("Фильму {} успешно отправлено {} отзывов", film.getName(), limit);
+            log.info("Фильму с id = {} успешно отправлено {} отзывов", film.getId(), limit);
 
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), id, limit);
         }
@@ -163,7 +163,7 @@ public class ReviewDao implements ReviewStorage {
                 jdbcTemplate.update("UPDATE review_like SET is_positive = true WHERE review_id = ? AND user_id = ?",
                         reviewId, userId);
 
-                log.info("Успешно обновлен дизлайк на лайк у отзыва с id = {} от пользователя {}", reviewId, user.getName());
+                log.info("Успешно обновлен дизлайк на лайк у отзыва с id = {} от пользователя с id = {}", reviewId, user.getId());
 
                 jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
 
@@ -172,17 +172,13 @@ public class ReviewDao implements ReviewStorage {
                 return;
             }
 
-            log.warn("Предупреждение: Пользователь {} пытается проставить повторно лайк отзыву с id = {}",
-                    user.getName(), reviewId);
-
-            throw new AlreadyExistException(String.format("Пользователь не может повторно ставить лайк отзыву, " +
-                    "id клиента = %d", userId));
+            return;
         }
 
         jdbcTemplate.update("INSERT INTO review_like (review_id, user_id, is_positive) VALUES (?, ?, true)",
                 reviewId, userId);
 
-        log.info("Успешно поставлен лайк отзыву с id = {} от пользователя {}", reviewId, user.getName());
+        log.info("Успешно поставлен лайк отзыву с id = {} от пользователя c id = {}", reviewId, user.getId());
 
         jdbcTemplate.update("UPDATE reviews SET useful = useful + 1  WHERE review_id = ?", reviewId);
 
@@ -204,7 +200,7 @@ public class ReviewDao implements ReviewStorage {
                 jdbcTemplate.update("UPDATE review_like SET is_positive = false WHERE review_id = ? AND user_id = ?",
                         reviewId, userId);
 
-                log.info("Успешно обновлен лайк на дизлайк у отзыва с id = {} от пользователя {}", reviewId, user.getName());
+                log.info("Успешно обновлен лайк на дизлайк у отзыва с id = {} от пользователя c id = {}", reviewId, user.getId());
 
                 jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
 
@@ -213,17 +209,13 @@ public class ReviewDao implements ReviewStorage {
                 return;
             }
 
-            log.warn("Предупреждение: Пользователь {} пытается проставить повторно дизлайк отзыву с id = {}",
-                    user.getName(), reviewId);
-
-            throw new AlreadyExistException(String.format("Пользователь не может повторно ставить дизлайк отзыву, " +
-                    "id клиента = %d", userId));
+            return;
         }
 
         jdbcTemplate.update("INSERT INTO review_like (review_id, user_id, is_positive) VALUES (?, ?, false)",
                 reviewId, userId);
 
-        log.info("Успешно поставлен дизлайк отзыву с id = {} от пользователя {}", reviewId, user.getName());
+        log.info("Успешно поставлен дизлайк отзыву с id = {} от пользователя c id = {}", reviewId, user.getId());
 
         jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
 
@@ -240,7 +232,7 @@ public class ReviewDao implements ReviewStorage {
         jdbcTemplate.update("DELETE FROM review_like WHERE review_id = ? AND user_id = ? AND is_positive = true",
                 reviewId, userId);
 
-        log.info("Успешно удален лайк у отзыва с id = {} от пользователя {}", reviewId, user.getName());
+        log.info("Успешно удален лайк у отзыва с id = {} от пользователя с id = {}", reviewId, user.getId());
 
         jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
 
@@ -257,7 +249,7 @@ public class ReviewDao implements ReviewStorage {
         jdbcTemplate.update("DELETE FROM review_like WHERE review_id = ? AND user_id = ? AND is_positive = false",
                 reviewId, userId);
 
-        log.info("Успешно удален дизлайк у отзыва с id = {} от пользователя {}", reviewId, user.getName());
+        log.info("Успешно удален дизлайк у отзыва с id = {} от пользователя с id = {}", reviewId, user.getId());
 
         jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
 

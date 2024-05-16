@@ -33,7 +33,7 @@ public class UserEvent {
     }
 
     public enum EventType {
-        LIKE,
+        SCORE,
         REVIEW,
         FRIEND
     }

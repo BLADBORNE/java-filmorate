@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -97,16 +99,16 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void addLikeToFilmAndAssertThatToAnotherUserWithTheSameLikeWillBeReccommendation() {
+    public void addScoreToFilmAndAssertThatToAnotherUserWithTheSameLikeWillBeReccommendation() {
         int filmid1 = filmService.getFilms().get(0).getId();
         int filmid2 = filmService.getFilms().get(1).getId();
 
         int userid1 = userService.getUsers().get(0).getId();
         int userid2 = userService.getUsers().get(1).getId();
 
-        filmService.addLikeToFilm(filmid1, userid1);
-        filmService.addLikeToFilm(filmid2, userid1);
-        filmService.addLikeToFilm(filmid2, userid2);
+        filmService.addScoreToFilm(filmid1, userid1, 10);
+        filmService.addScoreToFilm(filmid2, userid1, 6);
+        filmService.addScoreToFilm(filmid2, userid2, 10);
 
         List<Film> recommended = recommendationService.getRecommendation(userid2);
 
@@ -121,8 +123,8 @@ public class RecommendationServiceTest {
         int userid1 = userService.getUsers().get(0).getId();
         int userid2 = userService.getUsers().get(1).getId();
 
-        filmService.addLikeToFilm(filmid1, userid1);
-        filmService.addLikeToFilm(filmid2, userid1);
+        filmService.addScoreToFilm(filmid1, userid1, 9);
+        filmService.addScoreToFilm(filmid2, userid1, 6);
 
         List<Film> recommended = recommendationService.getRecommendation(userid2);
 
@@ -137,10 +139,10 @@ public class RecommendationServiceTest {
         int userid1 = userService.getUsers().get(0).getId();
         int userid2 = userService.getUsers().get(1).getId();
 
-        filmService.addLikeToFilm(filmid1, userid1);
-        filmService.addLikeToFilm(filmid2, userid1);
-        filmService.addLikeToFilm(filmid1, userid2);
-        filmService.addLikeToFilm(filmid2, userid2);
+        filmService.addScoreToFilm(filmid1, userid1, 10);
+        filmService.addScoreToFilm(filmid2, userid1, 9);
+        filmService.addScoreToFilm(filmid1, userid2, 7);
+        filmService.addScoreToFilm(filmid2, userid2, 9);
 
         List<Film> recommended = recommendationService.getRecommendation(userid2);
 
@@ -155,10 +157,10 @@ public class RecommendationServiceTest {
         int userid1 = userService.getUsers().get(0).getId();
         int userid2 = userService.getUsers().get(1).getId();
 
-        filmService.addLikeToFilm(filmid1, userid1);
-        filmService.addLikeToFilm(filmid2, userid1);
-        filmService.addLikeToFilm(filmid1, userid2);
-        filmService.addLikeToFilm(filmid2, userid2);
+        filmService.addScoreToFilm(filmid1, userid1,3);
+        filmService.addScoreToFilm(filmid2, userid1, 6);
+        filmService.addScoreToFilm(filmid1, userid2, 8);
+        filmService.addScoreToFilm(filmid2, userid2, 9);
 
 
         assertThrows(NoSuchElementException.class,
