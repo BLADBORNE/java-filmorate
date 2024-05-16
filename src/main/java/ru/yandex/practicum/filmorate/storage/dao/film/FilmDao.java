@@ -52,7 +52,7 @@ public class FilmDao implements FilmStorage {
                 ratingStorage.getRatingById(rs.getInt("rating_id")),
                 genreStorage.getFilmsGenres(rs.getInt("film_id")),
                 directorStorage.getFilmsDirectors(rs.getInt("film_id")),
-                rs.getInt("ranking"));
+                rs.getDouble("ranking"));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class FilmDao implements FilmStorage {
                     ratingStorage.getRatingById(filmRows.getInt("rating_id")),
                     genreStorage.getFilmsGenres(filmRows.getInt("film_id")),
                     directorStorage.getFilmsDirectors(filmRows.getInt("film_id")),
-                    filmRows.getInt("ranking"));
+                    filmRows.getDouble("ranking"));
         }
 
         log.warn(String.format("Отсутствует фильм с id = %s", id));
@@ -231,11 +231,13 @@ public class FilmDao implements FilmStorage {
 
                 userStorage.registerUserEvent(getUpdateFilmScoreEvent(userId, filmId));
 
-                SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
-                        "film_id = ?", film);
+                SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM film_score WHERE " +
+                        "film_id = ?", filmId);
 
-                jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
-                        updateRanking.getInt("avg_score"), filmId);
+                if (updateRanking.next()) {
+                    jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                            updateRanking.getDouble("avg_score"), filmId);
+                }
 
                 return;
             }
@@ -250,11 +252,13 @@ public class FilmDao implements FilmStorage {
 
         userStorage.registerUserEvent(getAddFilmScoreEvent(userId, filmId));
 
-        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
-                "film_id = ?", film);
+        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM film_score WHERE " +
+                "film_id = ?", filmId);
 
-        jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
-                updateRanking.getInt("avg_score"), filmId);
+        if (updateRanking.next()) {
+            jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                    updateRanking.getDouble("avg_score"), filmId);
+        }
     }
 
     @Override
@@ -271,11 +275,13 @@ public class FilmDao implements FilmStorage {
 
         userStorage.registerUserEvent(getDeleteFilmScoreEvent(userId, filmId));
 
-        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
-                "film_id = ?", film);
+        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM film_score WHERE " +
+                "film_id = ?", filmId);
 
-        jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
-                updateRanking.getInt("avg_score"), filmId);
+        if (updateRanking.next()) {
+            jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                    updateRanking.getDouble("avg_score"), filmId);
+        }
     }
 
     @Override

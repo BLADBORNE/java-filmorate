@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS films
     release_date DATE         NOT NULL CHECK (release_date >= DATE '1895-12-28'),
     duration     INTEGER      NOT NULL CHECK (duration > 0),
     rating_id    INTEGER      NOT NULL REFERENCES ratings (rating_id) ON DELETE CASCADE,
-    ranking      INTEGER      NOT NULL
+    ranking      DOUBLE      NOT NULL
 );
 
 CREATE table IF NOT EXISTS genres
