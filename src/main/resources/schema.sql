@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS films
     description  VARCHAR(200) NOT NULL CHECK LENGTH(description) <= 200,
     release_date DATE         NOT NULL CHECK (release_date >= DATE '1895-12-28'),
     duration     INTEGER      NOT NULL CHECK (duration > 0),
-    rating_id    INTEGER      NOT NULL REFERENCES ratings (rating_id) ON DELETE CASCADE
+    rating_id    INTEGER      NOT NULL REFERENCES ratings (rating_id) ON DELETE CASCADE,
+    ranking      INTEGER      NOT NULL
 );
 
 CREATE table IF NOT EXISTS genres
@@ -42,8 +43,8 @@ CREATE TABLE IF NOT EXISTS user_friend
 
 CREATE TABLE IF NOT EXISTS film_score
 (
-    film_id      INTEGER NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
-    user_id      INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    film_id INTEGER NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     score   INTEGER NOT NULL CHECK (score >= 1 AND score <= 10),
     PRIMARY KEY (film_id, user_id)
 );
@@ -62,7 +63,7 @@ CREATE TABLE reviews
     user_id     INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_positive BOOLEAN NOT NULL,
     content     TEXT    NOT NULL CHECK (content <> ''),
-    useful      INTEGER
+    useful      INTEGER NOT NULL
 );
 
 CREATE TABLE review_like

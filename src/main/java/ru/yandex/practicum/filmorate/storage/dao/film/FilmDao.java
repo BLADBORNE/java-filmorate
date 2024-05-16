@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.DateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SortingType;
 import ru.yandex.practicum.filmorate.model.User;
@@ -19,7 +17,6 @@ import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.service.UserEventFactory.*;
@@ -54,7 +51,8 @@ public class FilmDao implements FilmStorage {
                 rs.getInt("duration"),
                 ratingStorage.getRatingById(rs.getInt("rating_id")),
                 genreStorage.getFilmsGenres(rs.getInt("film_id")),
-                directorStorage.getFilmsDirectors(rs.getInt("film_id")));
+                directorStorage.getFilmsDirectors(rs.getInt("film_id")),
+                rs.getInt("ranking"));
     }
 
     @Override
@@ -74,7 +72,8 @@ public class FilmDao implements FilmStorage {
                     filmRows.getInt("duration"),
                     ratingStorage.getRatingById(filmRows.getInt("rating_id")),
                     genreStorage.getFilmsGenres(filmRows.getInt("film_id")),
-                    directorStorage.getFilmsDirectors(filmRows.getInt("film_id")));
+                    directorStorage.getFilmsDirectors(filmRows.getInt("film_id")),
+                    filmRows.getInt("ranking"));
         }
 
         log.warn(String.format("Отсутствует фильм с id = %s", id));
@@ -96,6 +95,7 @@ public class FilmDao implements FilmStorage {
         parameters.put("release_date", film.getReleaseDate());
         parameters.put("duration", film.getDuration());
         parameters.put("rating_id", film.getMpa().getId());
+        parameters.put("ranking", 0);
 
         Number generatedId = jdbcInsert.executeAndReturnKey(parameters);
 
@@ -231,6 +231,12 @@ public class FilmDao implements FilmStorage {
 
                 userStorage.registerUserEvent(getUpdateFilmScoreEvent(userId, filmId));
 
+                SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
+                        "film_id = ?", film);
+
+                jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                        updateRanking.getInt("avg_score"), filmId);
+
                 return;
             }
 
@@ -243,6 +249,12 @@ public class FilmDao implements FilmStorage {
                 film.getName()));
 
         userStorage.registerUserEvent(getAddFilmScoreEvent(userId, filmId));
+
+        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
+                "film_id = ?", film);
+
+        jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                updateRanking.getInt("avg_score"), filmId);
     }
 
     @Override
@@ -258,6 +270,12 @@ public class FilmDao implements FilmStorage {
         log.info(String.format("Пользователь %s успешно удалил оценку фильму %s", user.getName(), film.getName()));
 
         userStorage.registerUserEvent(getDeleteFilmScoreEvent(userId, filmId));
+
+        SqlRowSet updateRanking = jdbcTemplate.queryForRowSet("SELECT AVG(score) AS avg_score FROM films WHERE " +
+                "film_id = ?", film);
+
+        jdbcTemplate.update("UPDATE films SET ranking = ? WHERE film_id = ?",
+                updateRanking.getInt("avg_score"), filmId);
     }
 
     @Override
